@@ -159,7 +159,7 @@ class ImportLegacyContent extends Command
 
     protected function importStaticPages(string $base): void
     {
-        $pages = ['about', 'contact', 'privacy-policy', 'disclaimer', 'terms'];
+        $pages = ['about', 'contact', 'privacy-policy', 'disclaimer', 'terms', 'editorial'];
 
         foreach ($pages as $slug) {
             $htmlPath = "{$base}/{$slug}/index.html";

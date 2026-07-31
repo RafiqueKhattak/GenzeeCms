@@ -17,6 +17,7 @@
 /public/hot
 /public/storage
 /database/database.sqlite
+/bootstrap/ssr
 /storage/*.key
 /storage/pail
 /vendor

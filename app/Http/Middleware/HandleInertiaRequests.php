@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -33,6 +34,17 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
+            ],
+            'site' => [
+                'name' => Setting::get('site_name', 'GenzeeLogics'),
+                'tagline' => Setting::get('site_tagline'),
+                'url' => Setting::get('site_url', config('app.url')),
+                'logo' => Setting::get('logo_path', '/assets/img/logo-small.png'),
+                'metaTitleSuffix' => Setting::get('meta_title_suffix'),
+                'metaDescription' => Setting::get('meta_description'),
+                'ogImage' => Setting::get('og_image'),
+                'googleAnalyticsId' => Setting::get('google_analytics_id'),
+                'googleSiteVerification' => Setting::get('google_site_verification'),
             ],
         ];
     }
