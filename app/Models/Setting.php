@@ -1,0 +1,33 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
+
+class Setting extends Model
+{
+    protected $primaryKey = 'key';
+    protected $keyType = 'string';
+    public $incrementing = false;
+
+    protected $fillable = ['key', 'value', 'group'];
+
+    public static function get(string $key, mixed $default = null): mixed
+    {
+        return Cache::rememberForever("setting.{$key}", function () use ($key, $default) {
+            return static::query()->where('key', $key)->value('value') ?? $default;
+        });
+    }
+
+    public static function set(string $key, mixed $value, string $group = 'general'): void
+    {
+        static::query()->updateOrCreate(['key' => $key], ['value' => $value, 'group' => $group]);
+        Cache::forget("setting.{$key}");
+    }
+
+    public static function group(string $group): array
+    {
+        return static::query()->where('group', $group)->pluck('value', 'key')->all();
+    }
+}
