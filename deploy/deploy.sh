@@ -3,7 +3,7 @@
 # Deploy / redeploy GenzeeCms to /opt/apps/LaraCms.
 #
 # SAFETY: This script only ever touches files under /opt/apps/LaraCms,
-# /etc/nginx/sites-available/genzeelogics.com (+ its sites-enabled symlink),
+# /etc/nginx/sites-available/genzeelogics.conf (+ its sites-enabled symlink),
 # /etc/php/8.2/fpm/pool.d/genzeelogics.conf, and
 # /etc/supervisor/conf.d/genzeelogics-ssr.conf. It never edits
 # /home/wardah/frappe-bench/**, never restarts the frappe-bench-* supervisor
@@ -134,10 +134,10 @@ sudo systemctl reload "php${PHP_FPM_VERSION}-fpm"
 echo "OK — php${PHP_FPM_VERSION}-fpm reloaded (not restarted)."
 
 # ---------------------------------------------------------------------------
-step "Nginx server block"
+step "Nginx server block (replaces old genzeelogics.conf, keeps SSL certs)"
 # ---------------------------------------------------------------------------
-sudo cp "$APP_DIR/deploy/nginx-genzeelogics.conf" "/etc/nginx/sites-available/${DOMAIN}"
-sudo ln -sf "/etc/nginx/sites-available/${DOMAIN}" "/etc/nginx/sites-enabled/${DOMAIN}"
+sudo cp "$APP_DIR/deploy/nginx-genzeelogics.conf" "/etc/nginx/sites-available/genzeelogics.conf"
+sudo ln -sf "/etc/nginx/sites-available/genzeelogics.conf" "/etc/nginx/sites-enabled/genzeelogics.conf"
 sudo nginx -t
 sudo systemctl reload nginx
 echo "OK — nginx reloaded (not restarted); other sites on this box were not touched."

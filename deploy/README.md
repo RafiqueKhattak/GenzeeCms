@@ -45,69 +45,71 @@ v20.20.2 via `.nvmrc` in interactive shells.
 
 ## First-time deploy
 
-1. **Create a dedicated MySQL database and user** (never reuse Frappe's):
+> **Important**: This script **replaces the old genzeetools static site** with
+> the new Laravel GenzeeCms app. The existing nginx config at
+> `/etc/nginx/sites-available/genzeelogics.conf` will be overwritten, but SSL
+> certificates (`/etc/letsencrypt/live/genzeelogics.com/`) are preserved. The
+> site will go live immediately when the script finishes — there is no separate
+> "flip switch" step.
+
+1. **Verify the database exists** (it should already):
 
    ```bash
-   mysql -u root -p -e "CREATE DATABASE genzeelogics CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-   mysql -u root -p -e "CREATE USER 'genzeelogics'@'localhost' IDENTIFIED BY 'pick-a-strong-password';"
-   mysql -u root -p -e "GRANT ALL PRIVILEGES ON genzeelogics.* TO 'genzeelogics'@'localhost';"
+   mysql -u root -p -e "SHOW DATABASES LIKE 'laracms';"
    ```
 
-2. **Run the deploy script**:
+   If you see it listed, great — the script will use it. If not, create it:
 
    ```bash
-   bash <(curl -fsSL https://raw.githubusercontent.com/RafiqueKhattak/GenzeeCms/main/deploy/deploy.sh)
+   mysql -u root -p -e "CREATE DATABASE laracms CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
    ```
 
-   or, if you'd rather clone first and run locally:
+   Also create a dedicated MySQL user for this app (never share with Frappe):
 
    ```bash
-   git clone https://github.com/RafiqueKhattak/GenzeeCms.git /opt/apps/LaraCms
+   mysql -u root -p -e "CREATE USER 'laracms'@'localhost' IDENTIFIED BY 'pick-a-strong-password';"
+   mysql -u root -p -e "GRANT ALL PRIVILEGES ON laracms.* TO 'laracms'@'localhost';"
+   ```
+
+2. **Run the deploy script** (from anywhere, or cd to `/opt/apps/LaraCms` first):
+
+   ```bash
    cd /opt/apps/LaraCms
    bash deploy/deploy.sh
    ```
 
-   On the very first run, the script will stop right after copying
-   `deploy/.env.production.example` to `.env`, because you need to fill in
-   real values first — most importantly:
+   On the **very first run**, the script will stop after copying
+   `deploy/.env.production.example` to `.env`. You must edit it and set real values:
 
-   - `DB_PASSWORD` (the password you set in step 1)
-   - `ADMIN_PASSWORD` (used once by the seeder to create the admin login —
-     change it from the admin panel after first login)
-   - Double check `APP_URL` is `https://genzeelogics.com`
+   - `DB_PASSWORD` — the password you set for the `laracms` user above
+   - `ADMIN_PASSWORD` — initial password for the admin login (change it after
+     first login from the admin panel; the seeder prints/stores it nowhere else)
+   - Confirm `APP_URL` is `https://genzeelogics.com`
+   - Confirm `DB_DATABASE=laracms` and `DB_USERNAME=laracms`
 
-   Edit `/opt/apps/LaraCms/.env`, then **re-run the same command** — this
-   time it will proceed through migrations, seeding, the frontend build,
-   nginx/php-fpm/supervisor setup, and finish.
+   Then **re-run the same command** — this time it will continue:
+   - Composer/npm dependencies
+   - Database migrations + seeding (creates admin user + site settings)
+   - Frontend build (client + SSR bundles)
+   - Laravel caches
+   - PHP-FPM pool + socket
+   - Nginx config (replaces genzeetools, keeps SSL)
+   - SSR supervisor process
 
-3. **DNS**: make sure `genzeelogics.com` and `www.genzeelogics.com` A
-   records already point at this server's IP before moving on — certbot's
-   HTTP validation (next step) needs that to succeed.
-
-4. **Add HTTPS** (one-time, after the first successful deploy):
-
-   ```bash
-   sudo apt-get install -y certbot python3-certbot-nginx   # if not already installed
-   sudo certbot --nginx -d genzeelogics.com -d www.genzeelogics.com
-   ```
-
-   Certbot edits `/etc/nginx/sites-available/genzeelogics.com` in place to
-   add the HTTPS server block and redirect — it only touches this site's
-   file, not other sites' configs.
-
-5. **Verify**:
+3. **Verify immediately after the script finishes**:
 
    ```bash
    curl -I https://genzeelogics.com/                # expect 200
-   curl -I https://genzeelogics.com/tools/           # expect 200
-   sudo supervisorctl status genzeelogics-ssr        # expect RUNNING
-   sudo supervisorctl status | grep frappe-bench     # compare against the count you noted earlier — must be unchanged
+   curl -I https://genzeelogics.com/tools/          # expect 200
+   curl -I https://genzeelogics.com/admin           # expect 200 (or 302 to login)
+   sudo supervisorctl status genzeelogics-ssr       # expect RUNNING
+   sudo supervisorctl status | grep frappe-bench    # compare against the count you noted earlier — must be unchanged
    ```
 
-   Open the site in a browser and view source (Ctrl+U) on a tool/blog
-   page — you should see a real `<title>`, `<link rel="canonical">`, and
+   Open the site in a browser and view source (Ctrl+U) on a tool/blog page —
+   you should see a real `<title>`, `<link rel="canonical">`, and
    `<script type="application/ld+json">` already present in the raw HTML
-   (proof SSR is actually working, not just client-rendered).
+   (proof SSR is working, not just client-rendered).
 
 ## Redeploying (every time after the first)
 
@@ -116,16 +118,19 @@ cd /opt/apps/LaraCms
 bash deploy/deploy.sh
 ```
 
-Safe to re-run any time — it does `git fetch && git reset --hard
-origin/main`, reinstalls dependencies, re-runs migrations (no-op if
-nothing new), rebuilds the frontend, and restarts only the
-`genzeelogics-ssr` supervisor program (never `frappe-bench-*`).
+Safe to re-run any time. It will:
+- Fetch the latest code from GitHub and reset to `origin/main`
+- Reinstall composer/npm dependencies (as needed)
+- Re-run migrations (no-op if nothing new)
+- Rebuild the frontend + SSR bundle
+- Restart the `genzeelogics-ssr` supervisor program only (never touches `frappe-bench-*`)
+- Reload nginx/php-fpm only (never restarts, so other sites stay up)
 
-> **Uncommitted server-side changes will be discarded** by `git reset
-> --hard` — this script assumes `/opt/apps/LaraCms` only ever tracks what's
-> in the repo. Don't hand-edit files inside it outside of `.env` and
-> anything explicitly `.gitignore`d (storage, `.env`, `vendor`,
-> `node_modules`, build output).
+> **Uncommitted server-side changes will be discarded** by `git reset --hard`
+> — this script assumes `/opt/apps/LaraCms` only ever tracks what's in the
+> repo. Edit only `.env` and things explicitly in `.gitignore` (`storage/`,
+> `vendor/`, `node_modules/`, build output). Never hand-edit code files in
+> the app directory.
 
 ## Troubleshooting
 
