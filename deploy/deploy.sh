@@ -18,7 +18,7 @@
 # migrated/built and adjusts (e.g. won't re-seed the DB if it's already
 # seeded). Safe to re-run after every `git pull`.
 
-set -euo pipefail
+set -eo pipefail
 
 APP_DIR="/opt/apps/LaraCms"
 DOMAIN="genzeelogics.com"
