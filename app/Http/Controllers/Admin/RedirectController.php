@@ -24,16 +24,19 @@ class RedirectController extends Controller
     {
         $data = $request->validate([
             'from_path' => ['required', 'string', 'max:500', 'unique:redirects,from_path'],
-            'to_path' => ['required', 'string', 'max:500'],
-            'status_code' => ['required', Rule::in([301, 302])],
+            'to_path' => ['required_unless:status_code,410', 'nullable', 'string', 'max:500'],
+            'status_code' => ['required', Rule::in([301, 302, 410])],
         ]);
 
         $data['from_path'] = '/'.ltrim($data['from_path'], '/');
-        $data['to_path'] = '/'.ltrim($data['to_path'], '/');
+        $data['to_path'] = $data['status_code'] === 410 ? null : '/'.ltrim($data['to_path'], '/');
 
         Redirect::create($data);
 
-        ActivityLog::record('created', "Created redirect {$data['from_path']} \u{2192} {$data['to_path']}");
+        $label = $data['status_code'] === 410
+            ? "Marked {$data['from_path']} as gone (410)"
+            : "Created redirect {$data['from_path']} \u{2192} {$data['to_path']}";
+        ActivityLog::record('created', $label);
 
         return back()->with('success', 'Redirect created.');
     }

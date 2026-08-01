@@ -32,14 +32,22 @@ return Application::configure(basePath: dirname(__DIR__))
                 return null;
             }
 
+            $path = '/'.ltrim($request->getPathInfo(), '/');
+
             $redirect = \App\Models\Redirect::query()
-                ->where('from_path', '/'.ltrim($request->getPathInfo(), '/'))
+                ->where('from_path', $path)
                 ->first();
 
-            if ($redirect) {
-                return redirect()->away($redirect->to_path, $redirect->status_code);
+            if (! $redirect) {
+                return null;
             }
 
-            return null;
+            if ($redirect->status_code === 410) {
+                return \Inertia\Inertia::render('Public/Gone', ['path' => $path])
+                    ->toResponse($request)
+                    ->setStatusCode(410);
+            }
+
+            return redirect()->away($redirect->to_path, $redirect->status_code);
         });
     })->create();
