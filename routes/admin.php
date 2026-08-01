@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\PolicyCheckController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ToolController;
@@ -31,6 +32,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::delete('media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
 
     Route::get('activity', [ActivityController::class, 'index'])->name('activity.index');
+
+    Route::post('policy-check', [PolicyCheckController::class, 'check'])->name('policy-check');
 
     Route::middleware('admin.role')->group(function () {
         Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');

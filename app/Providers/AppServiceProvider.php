@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\PolicyChecker\ContentPolicyCheckerInterface;
+use App\Services\PolicyChecker\RuleBasedPolicyChecker;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -12,7 +14,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(ContentPolicyCheckerInterface::class, match (config('policy-checker.driver')) {
+            default => RuleBasedPolicyChecker::class,
+        });
     }
 
     /**

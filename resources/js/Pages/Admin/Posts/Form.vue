@@ -1,12 +1,13 @@
 <script setup>
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
+import PolicyCheckPanel from '@/Components/PolicyCheckPanel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import RichTextEditor from '@/Components/RichTextEditor.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
     post: { type: Object, default: null },
@@ -61,6 +62,7 @@ function uploadFeaturedImage(e) {
 }
 
 const categoriesForType = () => props.categories.filter((c) => c.type === form.type);
+const tagsArray = computed(() => tagsText.value.split(',').map((t) => t.trim()).filter(Boolean));
 </script>
 
 <template>
@@ -72,8 +74,8 @@ const categoriesForType = () => props.categories.filter((c) => c.type === form.t
         </template>
 
         <div class="py-8">
-            <div class="mx-auto max-w-4xl space-y-6 sm:px-6 lg:px-8">
-                <form class="space-y-6 rounded-lg bg-white p-6 shadow dark:bg-gray-800" @submit.prevent="submit">
+            <div class="mx-auto grid max-w-6xl gap-6 sm:px-6 lg:grid-cols-3 lg:px-8">
+                <form class="space-y-6 rounded-lg bg-white p-6 shadow dark:bg-gray-800 lg:col-span-2" @submit.prevent="submit">
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div>
                             <InputLabel value="Type" />
@@ -162,6 +164,19 @@ const categoriesForType = () => props.categories.filter((c) => c.type === form.t
                         <Link :href="route('admin.posts.index')" class="text-sm text-gray-600 hover:underline dark:text-gray-400">Cancel</Link>
                     </div>
                 </form>
+
+                <div class="lg:sticky lg:top-6 lg:self-start">
+                    <PolicyCheckPanel
+                        :type="form.type"
+                        :title="form.title"
+                        :body="form.body"
+                        :excerpt="form.excerpt"
+                        :meta-description="form.meta_description"
+                        :featured-image="form.featured_image"
+                        :category-id="form.category_id"
+                        :tags="tagsArray"
+                    />
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>
