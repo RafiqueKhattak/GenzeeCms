@@ -4,11 +4,16 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Site\HomeController;
 use App\Http\Controllers\Site\PageController;
 use App\Http\Controllers\Site\PostController;
+use App\Http\Controllers\Site\SeoController;
 use App\Http\Controllers\Site\ToolController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
+Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
+Route::get('/ads.txt', [SeoController::class, 'ads'])->name('ads');
 
 Route::get('/tools/', [ToolController::class, 'index'])->name('tools.index');
 Route::get('/tools/{slug}/', [ToolController::class, 'show'])->name('tools.show');
