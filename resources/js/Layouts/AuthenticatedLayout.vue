@@ -70,6 +70,12 @@ const showingNavigationDropdown = ref(false);
                                     Media
                                 </NavLink>
                                 <NavLink
+                                    :href="route('admin.redirects.index')"
+                                    :active="route().current('admin.redirects.*')"
+                                >
+                                    Redirects
+                                </NavLink>
+                                <NavLink
                                     v-if="$page.props.auth.user.role === 'admin'"
                                     :href="route('admin.users.index')"
                                     :active="route().current('admin.users.*')"
@@ -195,6 +201,7 @@ const showingNavigationDropdown = ref(false);
                         <ResponsiveNavLink :href="route('admin.pages.index')" :active="route().current('admin.pages.*')">Pages</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('admin.categories.index')" :active="route().current('admin.categories.*')">Categories</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('admin.media.index')" :active="route().current('admin.media.*')">Media</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('admin.redirects.index')" :active="route().current('admin.redirects.*')">Redirects</ResponsiveNavLink>
                         <ResponsiveNavLink v-if="$page.props.auth.user.role === 'admin'" :href="route('admin.users.index')" :active="route().current('admin.users.*')">Users</ResponsiveNavLink>
                         <ResponsiveNavLink v-if="$page.props.auth.user.role === 'admin'" :href="route('admin.settings.edit')" :active="route().current('admin.settings.*')">Settings</ResponsiveNavLink>
                     </div>

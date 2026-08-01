@@ -23,5 +23,23 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Covers both "no route matched" and "route matched but the
+        // record wasn't found" (e.g. a retired /tools/{slug}/) — Laravel
+        // converts both to NotFoundHttpException, so checking the
+        // Redirect table here catches every 404 in one place.
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, \Illuminate\Http\Request $request) {
+            if (! in_array($request->method(), ['GET', 'HEAD'], true)) {
+                return null;
+            }
+
+            $redirect = \App\Models\Redirect::query()
+                ->where('from_path', '/'.ltrim($request->getPathInfo(), '/'))
+                ->first();
+
+            if ($redirect) {
+                return redirect()->away($redirect->to_path, $redirect->status_code);
+            }
+
+            return null;
+        });
     })->create();

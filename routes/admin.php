@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PolicyCheckController;
 use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\RedirectController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\ToolController;
 use App\Http\Controllers\Admin\UserController;
@@ -34,6 +35,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::get('activity', [ActivityController::class, 'index'])->name('activity.index');
 
     Route::post('policy-check', [PolicyCheckController::class, 'check'])->name('policy-check');
+
+    Route::get('redirects', [RedirectController::class, 'index'])->name('redirects.index');
+    Route::post('redirects', [RedirectController::class, 'store'])->name('redirects.store');
+    Route::delete('redirects/{redirect}', [RedirectController::class, 'destroy'])->name('redirects.destroy');
 
     Route::middleware('admin.role')->group(function () {
         Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
