@@ -22,7 +22,7 @@ const showingNavigationDropdown = ref(false);
                         <div class="flex">
                             <!-- Logo -->
                             <div class="flex shrink-0 items-center">
-                                <Link :href="route('dashboard')">
+                                <Link :href="route('admin.dashboard')">
                                     <ApplicationLogo
                                         class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200"
                                     />
@@ -31,13 +31,57 @@ const showingNavigationDropdown = ref(false);
 
                             <!-- Navigation Links -->
                             <div
-                                class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex"
+                                class="hidden space-x-6 sm:-my-px sm:ms-10 sm:flex"
                             >
                                 <NavLink
-                                    :href="route('dashboard')"
-                                    :active="route().current('dashboard')"
+                                    :href="route('admin.dashboard')"
+                                    :active="route().current('admin.dashboard')"
                                 >
                                     Dashboard
+                                </NavLink>
+                                <NavLink
+                                    :href="route('admin.tools.index')"
+                                    :active="route().current('admin.tools.*')"
+                                >
+                                    Tools
+                                </NavLink>
+                                <NavLink
+                                    :href="route('admin.posts.index')"
+                                    :active="route().current('admin.posts.*')"
+                                >
+                                    Posts
+                                </NavLink>
+                                <NavLink
+                                    :href="route('admin.pages.index')"
+                                    :active="route().current('admin.pages.*')"
+                                >
+                                    Pages
+                                </NavLink>
+                                <NavLink
+                                    :href="route('admin.categories.index')"
+                                    :active="route().current('admin.categories.*')"
+                                >
+                                    Categories
+                                </NavLink>
+                                <NavLink
+                                    :href="route('admin.media.index')"
+                                    :active="route().current('admin.media.*')"
+                                >
+                                    Media
+                                </NavLink>
+                                <NavLink
+                                    v-if="$page.props.auth.user.role === 'admin'"
+                                    :href="route('admin.users.index')"
+                                    :active="route().current('admin.users.*')"
+                                >
+                                    Users
+                                </NavLink>
+                                <NavLink
+                                    v-if="$page.props.auth.user.role === 'admin'"
+                                    :href="route('admin.settings.edit')"
+                                    :active="route().current('admin.settings.*')"
+                                >
+                                    Settings
                                 </NavLink>
                             </div>
                         </div>
@@ -71,6 +115,11 @@ const showingNavigationDropdown = ref(false);
                                     </template>
 
                                     <template #content>
+                                        <DropdownLink
+                                            :href="route('admin.activity.index')"
+                                        >
+                                            Activity Log
+                                        </DropdownLink>
                                         <DropdownLink
                                             :href="route('profile.edit')"
                                         >
@@ -140,12 +189,14 @@ const showingNavigationDropdown = ref(false);
                     class="sm:hidden"
                 >
                     <div class="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink
-                            :href="route('dashboard')"
-                            :active="route().current('dashboard')"
-                        >
-                            Dashboard
-                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('admin.dashboard')" :active="route().current('admin.dashboard')">Dashboard</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('admin.tools.index')" :active="route().current('admin.tools.*')">Tools</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('admin.posts.index')" :active="route().current('admin.posts.*')">Posts</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('admin.pages.index')" :active="route().current('admin.pages.*')">Pages</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('admin.categories.index')" :active="route().current('admin.categories.*')">Categories</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('admin.media.index')" :active="route().current('admin.media.*')">Media</ResponsiveNavLink>
+                        <ResponsiveNavLink v-if="$page.props.auth.user.role === 'admin'" :href="route('admin.users.index')" :active="route().current('admin.users.*')">Users</ResponsiveNavLink>
+                        <ResponsiveNavLink v-if="$page.props.auth.user.role === 'admin'" :href="route('admin.settings.edit')" :active="route().current('admin.settings.*')">Settings</ResponsiveNavLink>
                     </div>
 
                     <!-- Responsive Settings Options -->

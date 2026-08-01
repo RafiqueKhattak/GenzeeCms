@@ -13,13 +13,23 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class ForceTrailingSlash
 {
+    /**
+     * Only these top-level segments are legacy public content sections that
+     * need slash-terminated URLs for Search Console parity. Everything else
+     * (admin, auth, profile, storage, build assets, ...) keeps normal
+     * Laravel-style routing without a trailing slash.
+     */
+    protected const PUBLIC_PREFIXES = ['tools', 'blog', 'news', 'about', 'contact', 'privacy-policy', 'disclaimer', 'terms', 'editorial'];
+
     public function handle(Request $request, Closure $next): Response
     {
         $path = $request->getPathInfo();
+        $firstSegment = trim(explode('/', trim($path, '/'))[0] ?? '', '/');
 
         if (
             in_array($request->method(), ['GET', 'HEAD'], true)
             && $path !== '/'
+            && in_array($firstSegment, self::PUBLIC_PREFIXES, true)
             && ! str_ends_with($path, '/')
             && ! str_contains(basename($path), '.')
             && ! $request->ajax()

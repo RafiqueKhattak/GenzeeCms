@@ -18,7 +18,7 @@ createServer((page) =>
         setup({ App, props, plugin }) {
             return createSSRApp({ render: () => h(App, props) })
                 .use(plugin)
-                .use(ZiggyVue);
+                .use(ZiggyVue, props.initialPage.props.ziggy);
         },
     }),
 );
