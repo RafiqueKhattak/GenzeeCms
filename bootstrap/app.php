@@ -43,6 +43,12 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             if ($redirect->status_code === 410) {
+                // Rendered from the exception handler, outside the normal
+                // middleware pipeline, so HandleInertiaRequests::share()
+                // never ran for this request — share its props manually or
+                // PublicLayout/SeoHead crash reading usePage().props.site.
+                \Inertia\Inertia::share(app(\App\Http\Middleware\HandleInertiaRequests::class)->share($request));
+
                 return \Inertia\Inertia::render('Public/Gone', ['path' => $path])
                     ->toResponse($request)
                     ->setStatusCode(410);

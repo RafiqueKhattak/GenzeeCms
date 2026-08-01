@@ -1,15 +1,20 @@
 <script setup>
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import SeoHead from '@/Components/Public/SeoHead.vue';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 
-defineProps({
+const props = defineProps({
     path: { type: String, required: true },
 });
+
+const site = computed(() => usePage().props.site);
+const canonical = computed(() => site.value.url.replace(/\/$/, '') + props.path);
 </script>
 
 <template>
+    <SeoHead title="Page removed — 410 Gone" :canonical="canonical" description="This page has been permanently removed." />
     <Head>
-        <title>Page removed — 410 Gone</title>
         <meta name="robots" content="noindex, follow" />
     </Head>
 
