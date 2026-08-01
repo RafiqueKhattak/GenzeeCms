@@ -1,0 +1,31 @@
+# /etc/supervisor/conf.d/genzeelogics-ssr.conf
+#
+# Runs the Inertia SSR Node process for GenzeeCms ONLY. This program name
+# ("genzeelogics-ssr") is deliberately distinct from — and this file lives
+# alongside, never inside — the frappe-bench-* program group config at
+# /home/wardah/frappe-bench/config/supervisor.conf. `supervisorctl restart`/
+# `stop`/`start` scoped to this program name never touches frappe-bench-*.
+#
+# PATH is prefixed with the nvm-managed Node 20 bin dir so that when
+# `php artisan inertia:start-ssr` shells out to `node`, it finds Node 20 —
+# never /usr/bin/node (the system-wide v12.22.9 that Frappe depends on).
+# Placeholders {{NODE_BIN_DIR}}, {{APP_DIR}}, {{DEPLOY_USER}} are substituted
+# by deploy.sh before this is installed.
+
+[program:genzeelogics-ssr]
+command=php artisan inertia:start-ssr
+directory={{APP_DIR}}
+user={{DEPLOY_USER}}
+environment=PATH="{{NODE_BIN_DIR}}:%(ENV_PATH)s",HOME="/home/{{DEPLOY_USER}}"
+autostart=true
+autorestart=true
+startsecs=3
+startretries=5
+stopsignal=TERM
+stopwaitsecs=10
+stdout_logfile={{APP_DIR}}/storage/logs/ssr.out.log
+stdout_logfile_maxbytes=10MB
+stdout_logfile_backups=5
+stderr_logfile={{APP_DIR}}/storage/logs/ssr.err.log
+stderr_logfile_maxbytes=10MB
+stderr_logfile_backups=5
