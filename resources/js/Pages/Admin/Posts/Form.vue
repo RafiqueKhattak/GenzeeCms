@@ -64,10 +64,13 @@ function submit() {
     }
 }
 
+const uploadError = ref('');
+
 function uploadFeaturedImage(e) {
     const file = e.target.files[0];
     if (!file) return;
     uploading.value = true;
+    uploadError.value = '';
     const data = new FormData();
     data.append('file', file);
     window.axios
@@ -76,7 +79,18 @@ function uploadFeaturedImage(e) {
             form.featured_image = `/storage/${media.path}`;
             form.og_image = `/storage/${media.path}`;
         })
-        .finally(() => (uploading.value = false));
+        .catch((error) => {
+            uploadError.value = error.response?.data?.message ?? 'Upload failed — please try again.';
+        })
+        .finally(() => {
+            uploading.value = false;
+            e.target.value = '';
+        });
+}
+
+function removeFeaturedImage() {
+    form.featured_image = '';
+    form.og_image = '';
 }
 
 const categoriesForType = () => props.categories.filter((c) => c.type === form.type);
@@ -167,7 +181,16 @@ const tagsArray = computed(() => tagsText.value.split(',').map((t) => t.trim()).
                             <img v-if="form.featured_image" :src="form.featured_image" class="h-16 w-24 rounded object-cover" />
                             <input type="file" accept="image/*" :disabled="uploading" @change="uploadFeaturedImage" />
                             <span v-if="uploading" class="text-sm text-gray-500">Uploading…</span>
+                            <button
+                                v-if="form.featured_image && !uploading"
+                                type="button"
+                                class="text-sm text-red-600 hover:underline"
+                                @click="removeFeaturedImage"
+                            >
+                                Remove
+                            </button>
                         </div>
+                        <p v-if="uploadError" class="mt-1 text-sm text-red-600">{{ uploadError }}</p>
                     </div>
 
                     <div v-if="form.type === 'news'" class="grid gap-4 rounded-md border border-gray-200 p-4 dark:border-gray-700 sm:grid-cols-2">
