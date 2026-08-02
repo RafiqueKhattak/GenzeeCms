@@ -66,9 +66,9 @@ function actingAsAdmin(): \App\Models\User
  * sensitive by design. This dispatches a request directly through the
  * kernel, bypassing that normalization, so the exact path is preserved.
  */
-function getRaw(string $uri): \Illuminate\Testing\TestResponse
+function getRaw(string $uri, array $server = []): \Illuminate\Testing\TestResponse
 {
-    $symfonyRequest = \Symfony\Component\HttpFoundation\Request::create($uri, 'GET');
+    $symfonyRequest = \Symfony\Component\HttpFoundation\Request::create($uri, 'GET', [], [], [], $server);
     $request = \Illuminate\Http\Request::createFromBase($symfonyRequest);
     $kernel = app(\Illuminate\Contracts\Http\Kernel::class);
     $response = $kernel->handle($request);

@@ -38,11 +38,23 @@ class PostController extends Controller
 
     public function create(Request $request): Response
     {
+        // Arriving from the keyword-ideas panel: prefill the title from the
+        // chosen suggestion and carry its id through so store() can mark it used.
+        $keyword = $request->filled('keyword_id')
+            ? \App\Models\KeywordSuggestion::find($request->query('keyword_id'))
+            : null;
+
         return Inertia::render('Admin/Posts/Form', [
             'post' => null,
-            'defaultType' => $request->query('type', 'blog'),
+            'defaultType' => $keyword?->suggested_type ?? $request->query('type', 'blog'),
             'categories' => Category::whereIn('type', ['blog', 'news'])->orderBy('order')->get(),
             'tags' => Tag::orderBy('name')->get(),
+            'fromKeyword' => $keyword ? [
+                'id' => $keyword->id,
+                'keyword' => $keyword->keyword,
+                'context' => $keyword->context,
+                'source_url' => $keyword->source_url,
+            ] : null,
         ]);
     }
 
@@ -53,6 +65,12 @@ class PostController extends Controller
 
         $post = Post::create($data);
         $this->syncTags($post, $request->input('tags', []));
+
+        if ($request->filled('keyword_id')) {
+            \App\Models\KeywordSuggestion::where('id', $request->input('keyword_id'))
+                ->update(['status' => 'used', 'used_post_id' => $post->id]);
+        }
+
         Cache::forget(SeoController::CACHE_KEY);
         Cache::forget(PublicPostController::INDEX_CACHE_KEY_PREFIX.'blog');
         Cache::forget(PublicPostController::INDEX_CACHE_KEY_PREFIX.'news');

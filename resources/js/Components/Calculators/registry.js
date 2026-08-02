@@ -3,6 +3,7 @@
 // CalculatorMount.vue. Add an entry here as each calculator is ported (Phase 4).
 export const calculatorRegistry = {
     AgeCalculator: () => import('./AgeCalculator.vue'),
+    GenerationCalculator: () => import('./GenerationCalculator.vue'),
     LoanCalculator: () => import('./LoanCalculator.vue'),
     CompoundInterestCalculator: () => import('./CompoundInterestCalculator.vue'),
     SimpleInterestCalculator: () => import('./SimpleInterestCalculator.vue'),

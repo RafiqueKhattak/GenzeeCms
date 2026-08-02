@@ -111,6 +111,38 @@ v20.20.2 via `.nvmrc` in interactive shells.
    `<script type="application/ld+json">` already present in the raw HTML
    (proof SSR is working, not just client-rendered).
 
+## Optional: country data for the admin Analytics page
+
+`/admin/analytics` shows a per-country breakdown, but it deliberately never
+reads the visitor's IP address. The country code comes from a header set by
+whatever CDN or proxy sits in front of the app — `CF-IPCountry`,
+`CloudFront-Viewer-Country`, `X-Geo-Country` or `X-Country-Code`.
+
+With the current nginx-only setup no such header exists, so every view is
+recorded with an unknown country and the page shows a note saying so.
+Everything else on that page (views, top pages, referrers, bots) works
+regardless. To populate it, either:
+
+- **Put Cloudflare in front of the domain** — the free plan sets
+  `CF-IPCountry` automatically, nothing to change in this app; or
+- **Install nginx's GeoIP2 module** and add to the server block:
+  ```nginx
+  proxy_set_header X-Geo-Country $geoip2_data_country_code;
+  fastcgi_param   HTTP_X_GEO_COUNTRY $geoip2_data_country_code;
+  ```
+
+## Optional: keyword suggestions from the news API
+
+`/admin/keywords` can pull headlines automatically if `NEWS_API_KEY` is set
+in `.env`. Get a free key from <https://newsapi.org> — it is an API key
+issued at signup, not an account login, and nothing else is shared with it.
+Without a key the page still works; you just add keywords manually (for
+example from Google Trends) instead of fetching them.
+
+```env
+NEWS_API_KEY=your-free-key-here
+```
+
 ## Laravel scheduler (one-time cron setup)
 
 `posts:publish-due` (flips a scheduled post's status to `published` once its

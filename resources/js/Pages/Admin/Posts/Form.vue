@@ -14,16 +14,27 @@ const props = defineProps({
     defaultType: { type: String, default: 'blog' },
     categories: { type: Array, required: true },
     tags: { type: Array, required: true },
+    fromKeyword: { type: Object, default: null },
 });
 
 const isEdit = !!props.post;
 const uploading = ref(false);
 
+function slugify(text) {
+    return text
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .slice(0, 70)
+        .replace(/-+$/, '');
+}
+
 const form = useForm({
     type: props.post?.type ?? props.defaultType,
     category_id: props.post?.category_id ?? '',
-    slug: props.post?.slug ?? '',
-    title: props.post?.title ?? '',
+    slug: props.post?.slug ?? (props.fromKeyword ? slugify(props.fromKeyword.keyword) : ''),
+    title: props.post?.title ?? props.fromKeyword?.keyword ?? '',
     excerpt: props.post?.excerpt ?? '',
     body: props.post?.body ?? '',
     featured_image: props.post?.featured_image ?? '',
@@ -34,6 +45,7 @@ const form = useForm({
     status: props.post?.status ?? 'draft',
     published_at: props.post?.published_at?.slice(0, 16) ?? '',
     tags: props.post?.tags?.map((t) => t.name) ?? [],
+    keyword_id: props.fromKeyword?.id ?? null,
 });
 
 const tagsText = ref(form.tags.join(', '));
@@ -74,6 +86,28 @@ const tagsArray = computed(() => tagsText.value.split(',').map((t) => t.trim()).
         </template>
 
         <div class="py-8">
+            <div v-if="fromKeyword" class="mx-auto mb-6 max-w-6xl sm:px-6 lg:px-8">
+                <div class="rounded-lg border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-800 dark:bg-indigo-900/30">
+                    <p class="text-sm font-semibold text-indigo-900 dark:text-indigo-200">
+                        Writing from a keyword idea
+                    </p>
+                    <p class="mt-1 text-sm text-indigo-800 dark:text-indigo-300">
+                        “{{ fromKeyword.keyword }}”
+                        <a v-if="fromKeyword.source_url" :href="fromKeyword.source_url" target="_blank" rel="noopener noreferrer" class="ml-1 underline">view source</a>
+                    </p>
+                    <p v-if="fromKeyword.context" class="mt-1 text-xs text-indigo-700 dark:text-indigo-400">{{ fromKeyword.context }}</p>
+                    <ol class="mt-3 list-decimal space-y-1 pl-5 text-xs text-indigo-800 dark:text-indigo-300">
+                        <li>The title and slug are prefilled — rewrite the title in your own words rather than copying a headline verbatim.</li>
+                        <li>Write the body yourself. The panel on the right checks originality against your existing posts and flags AdSense policy problems as you type.</li>
+                        <li>Add a meta description under 160 characters, a featured image, and a category before publishing.</li>
+                        <li>Aim for 500+ words of genuinely useful detail — thin content is the most common AdSense rejection reason.</li>
+                    </ol>
+                    <p class="mt-3 text-xs text-indigo-700 dark:text-indigo-400">
+                        This suggestion is marked as used once you save.
+                    </p>
+                </div>
+            </div>
+
             <div class="mx-auto grid max-w-6xl gap-6 sm:px-6 lg:grid-cols-3 lg:px-8">
                 <form class="space-y-6 rounded-lg bg-white p-6 shadow dark:bg-gray-800 lg:col-span-2" @submit.prevent="submit">
                     <div class="grid gap-4 sm:grid-cols-2">
@@ -174,6 +208,7 @@ const tagsArray = computed(() => tagsText.value.split(',').map((t) => t.trim()).
                         :meta-description="form.meta_description"
                         :featured-image="form.featured_image"
                         :category-id="form.category_id"
+                        :post-id="post?.id"
                         :tags="tagsArray"
                     />
                 </div>

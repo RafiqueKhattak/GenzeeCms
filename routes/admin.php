@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\ActivityController;
+use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\KeywordSuggestionController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PolicyCheckController;
@@ -42,6 +44,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::delete('media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
 
     Route::get('activity', [ActivityController::class, 'index'])->name('activity.index');
+
+    Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+
+    Route::get('keywords', [KeywordSuggestionController::class, 'index'])->name('keywords.index');
+    Route::post('keywords', [KeywordSuggestionController::class, 'store'])->name('keywords.store');
+    Route::post('keywords/fetch', [KeywordSuggestionController::class, 'fetch'])->name('keywords.fetch');
+    Route::put('keywords/{keyword}', [KeywordSuggestionController::class, 'update'])->name('keywords.update');
+    Route::delete('keywords/{keyword}', [KeywordSuggestionController::class, 'destroy'])->name('keywords.destroy');
 
     Route::post('policy-check', [PolicyCheckController::class, 'check'])->name('policy-check');
 

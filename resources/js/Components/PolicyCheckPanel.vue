@@ -9,6 +9,7 @@ const props = defineProps({
     metaDescription: { type: String, default: '' },
     featuredImage: { type: String, default: '' },
     categoryId: { type: [Number, String], default: null },
+    postId: { type: [Number, String], default: null },
     tags: { type: Array, default: () => [] },
 });
 
@@ -27,6 +28,7 @@ function run() {
             meta_description: props.metaDescription,
             featured_image: props.featuredImage,
             category_id: props.categoryId || null,
+            post_id: props.postId || null,
             tags: props.tags,
         })
         .then(({ data }) => (result.value = data))

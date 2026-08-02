@@ -160,10 +160,66 @@ rather than needing separate write-ups:
     entirely (not just empty) — only masked before because the Tools form
     always sent the field. Fixed with `?? null`.
 
+## Gen Z content cluster + growth tooling (2 Aug 2026, second batch)
+
+- **Generation calculator** (`/tools/generation-calculator/`,
+  `GenerationCalculator.vue`) — date of birth → cohort, with the full
+  birth-year range, the defining organisation, and a "you're on the cusp"
+  warning for boundary years. Cohort ranges are Pew Research Center's
+  (Gen Z = 1997-2012) except Gen Alpha/Beta, which Pew has not defined —
+  those follow McCrindle. **If you edit the ranges, edit them in both
+  `GenerationCalculator.vue` and `GenZContentSeeder.php`**, which repeat
+  them in prose.
+- **Four Gen Z blog posts**, seeded by
+  `database/seeders/GenZContentSeeder.php` (idempotent, safe to re-run):
+  what Gen Z means, Gen Z birth years, a cohort comparison, and a
+  research-based strengths/weaknesses piece. All interlink and link to the
+  calculator. Category `generations-culture` is created by the same seeder.
+- **Privacy-friendly analytics** (`/admin/analytics`) — `page_views` table
+  + `RecordPageView` middleware (writes in `terminate()`, after the
+  response is sent). Records path, section type, referrer host, bot flag
+  and a coarse country code; **stores no IP address and no per-visitor
+  identifier**, which is a deliberate choice to keep it out of personal-data
+  territory. Country comes from a CDN/proxy header (`CF-IPCountry` etc.) —
+  on the current nginx-only setup there is no such header, so country shows
+  as "Unknown" until Cloudflare or nginx GeoIP2 is put in front. The admin
+  page resolves page titles from paths in one batch query rather than
+  storing them per row, keeping the write path a single insert.
+- **Keyword ideas panel** (`/admin/keywords`) — a queue of content ideas
+  from two sources: manual entry (e.g. from Google Trends) and, if
+  `NEWS_API_KEY` is set, headlines pulled from newsapi.org's free tier.
+  Every idea is scored 0-100 for fit against this site's subject area by
+  `App\Services\Keywords\KeywordRelevance`. **This filter is the point of
+  the feature** — raw trending feeds are dominated by sport, celebrity and
+  breaking local news, which would produce off-topic pages that rank for
+  nothing; verified against real Trends exports, "july tax revenue fbr"
+  scores 60 and "wwe summerslam matches" scores 0. Clicking "Write this"
+  opens the post editor prefilled with title/slug/type plus a guidance
+  checklist, and saving marks the suggestion used and links it to the post.
+- **Duplicate-content detection** — `App\Support\ContentSimilarity`
+  (Jaccard over 5-word shingles, no dependency) + `DuplicateContentChecker`,
+  merged into the live policy panel by `Admin\PolicyCheckController`. Warns
+  at 22% overlap, fails at 45%. Shingles rather than word-frequency because
+  frequency comparison flags any two articles on the same topic; shared
+  *sequences* actually indicate copied text. The checker is deliberately
+  **not** an implementation of `ContentPolicyCheckerInterface` — that
+  interface stays Eloquent-free so a future LLM-backed checker only depends
+  on the DTO; the controller merges the two results and recomputes the score.
+- **Not done, deliberately**: the user asked for Gen Z political-advocacy
+  framing (Pakistan government/military) and for Gen Z keywords stuffed into
+  every page. Both were declined and explained: political incitement content
+  is an AdSense policy violation that would jeopardise the application this
+  work is meant to support, and sitewide keyword stuffing violates Google's
+  spam policies and suppresses rankings. Neutral, genuinely useful
+  generational content was built instead. If this comes up again, hold that
+  line rather than quietly re-litigating it.
+
 New/changed test files: `tests/Unit/PolicyCheckerTest.php`,
 `tests/Feature/RedirectAndGoneTest.php`,
 `tests/Feature/Admin/{Tool,Post}CrudTest.php`,
-`tests/Feature/Auth/TwoFactorAuthenticationTest.php`. Also fixed several
+`tests/Feature/Auth/TwoFactorAuthenticationTest.php`,
+`tests/Feature/Admin/{Analytics,DuplicateContent,KeywordSuggestion}Test.php`.
+Also fixed several
 pre-existing stock-Breeze tests that referenced the nonexistent `dashboard`
 route name, and deleted `RegistrationTest.php` (self-registration doesn't
 exist in this app — see "Users" below). `phpunit.xml` now sets
@@ -618,9 +674,12 @@ php artisan db:seed
 # scheduler once the server cron entry from deploy/README.md is set up)
 php artisan posts:publish-due
 
-# Run the test suite (47 tests as of the 2 Aug 2026 improvements batch —
-# see "Post-launch improvements" above)
+# Run the test suite (63 tests as of the 2 Aug 2026 batches — see
+# "Post-launch improvements" and "Gen Z content cluster" above)
 php artisan test
+
+# Re-seed the Gen Z tool + blog cluster (idempotent)
+php artisan db:seed --class=GenZContentSeeder
 ```
 
 ## Admin login

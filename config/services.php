@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    /*
+     * Free API key from newsapi.org, used only to pull public headlines as
+     * raw material for the admin keyword-suggestion panel. Optional — leave
+     * unset and the panel falls back to manual keyword entry.
+     */
+    'news_api' => [
+        'key' => env('NEWS_API_KEY'),
+    ],
+
 ];
