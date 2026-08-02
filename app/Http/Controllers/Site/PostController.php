@@ -84,7 +84,7 @@ class PostController extends Controller
             ->when($post->category_id, fn ($q) => $q->where('category_id', $post->category_id))
             ->orderByDesc('published_at')
             ->take(4)
-            ->get(['title', 'slug', 'excerpt', 'published_at']);
+            ->get(['title', 'slug', 'excerpt', 'published_at', 'featured_image']);
 
         $label = $type === 'blog' ? 'Blog' : 'News';
 
