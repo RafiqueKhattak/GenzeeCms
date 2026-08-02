@@ -37,16 +37,25 @@ class MediaController extends Controller
         $file = $request->file('file');
         $type = str_starts_with($file->getMimeType(), 'video/') ? 'video' : 'image';
         $path = $file->store('media/'.date('Y/m'), 'public');
+        $mimeType = $file->getMimeType();
 
         if ($type === 'image') {
-            ImageOptimizer::optimize(Storage::disk('public')->path($path), $file->getMimeType());
+            $optimized = ImageOptimizer::optimize(Storage::disk('public')->path($path), $mimeType);
+
+            if ($optimized) {
+                // Path/extension may have changed (e.g. .jpg -> .webp) —
+                // rebase the new absolute path back onto the public disk.
+                $diskRoot = Storage::disk('public')->path('');
+                $path = ltrim(str_replace($diskRoot, '', $optimized['path']), '/');
+                $mimeType = $optimized['mime'];
+            }
         }
 
         $media = Media::create([
             'disk' => 'public',
             'path' => $path,
             'type' => $type,
-            'mime_type' => $file->getMimeType(),
+            'mime_type' => $mimeType,
             'size' => Storage::disk('public')->size($path),
             'alt_text' => $request->input('alt_text'),
             'uploaded_by' => $request->user()->id,
