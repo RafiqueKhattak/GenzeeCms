@@ -6,7 +6,15 @@ const props = defineProps({
     breadcrumbs: { type: Array, default: () => [] },
 });
 
-const site = computed(() => usePage().props.site);
+// Falls back to safe defaults if `site` wasn't shared for this request
+// (e.g. an exception-handler-rendered page outside the normal Inertia
+// middleware pipeline) — a missing prop must never crash SSR.
+const site = computed(() => usePage().props.site ?? {
+    name: 'GenzeeLogics',
+    tagline: '',
+    url: 'https://genzeelogics.com',
+    logo: '/assets/img/logo-small.png',
+});
 const currentUrl = computed(() => usePage().url);
 
 function isActive(href) {

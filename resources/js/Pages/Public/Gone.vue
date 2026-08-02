@@ -8,8 +8,8 @@ const props = defineProps({
     path: { type: String, required: true },
 });
 
-const site = computed(() => usePage().props.site);
-const canonical = computed(() => site.value.url.replace(/\/$/, '') + props.path);
+const site = computed(() => usePage().props.site ?? { url: 'https://genzeelogics.com' });
+const canonical = computed(() => (site.value.url ?? 'https://genzeelogics.com').replace(/\/$/, '') + props.path);
 </script>
 
 <template>

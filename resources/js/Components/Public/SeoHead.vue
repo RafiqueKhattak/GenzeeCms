@@ -10,7 +10,9 @@ const props = defineProps({
     jsonLd: { type: Array, default: () => [] },
 });
 
-const site = computed(() => usePage().props.site);
+// Must never crash SSR if `site` wasn't shared for this request (e.g. an
+// exception-handler-rendered page outside the normal Inertia pipeline).
+const site = computed(() => usePage().props.site ?? {});
 const description = computed(() => props.description ?? site.value.metaDescription);
 const image = computed(() => props.ogImage ?? site.value.ogImage);
 </script>
