@@ -51,6 +51,7 @@ const jsonLd = computed(() => [
         <article class="prose">
             <h1>{{ post.title }}</h1>
             <p class="article-meta">Published: {{ post.published_at?.slice(0, 10) }}</p>
+            <img v-if="post.featured_image" :src="post.featured_image" :alt="post.title" class="featured-image" />
             <div v-html="post.body" />
 
             <section v-if="related?.length" class="related-tools">
@@ -69,3 +70,12 @@ const jsonLd = computed(() => [
         </article>
     </PublicLayout>
 </template>
+
+<style scoped>
+.featured-image {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius, 12px);
+    margin-bottom: var(--s-5, 1.5rem);
+}
+</style>
