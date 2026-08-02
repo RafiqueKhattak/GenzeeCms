@@ -14,6 +14,8 @@ const props = defineProps({
     defaultType: { type: String, default: 'blog' },
     categories: { type: Array, required: true },
     tags: { type: Array, required: true },
+    authors: { type: Array, required: true },
+    defaultAuthorId: { type: Number, default: null },
     fromKeyword: { type: Object, default: null },
 });
 
@@ -33,6 +35,7 @@ function slugify(text) {
 const form = useForm({
     type: props.post?.type ?? props.defaultType,
     category_id: props.post?.category_id ?? '',
+    author_id: props.post?.author_id ?? props.defaultAuthorId,
     slug: props.post?.slug ?? (props.fromKeyword ? slugify(props.fromKeyword.keyword) : ''),
     title: props.post?.title ?? props.fromKeyword?.keyword ?? '',
     excerpt: props.post?.excerpt ?? '',
@@ -41,6 +44,8 @@ const form = useForm({
     meta_title: props.post?.meta_title ?? '',
     meta_description: props.post?.meta_description ?? '',
     canonical_override: props.post?.canonical_override ?? '',
+    source_name: props.post?.source_name ?? '',
+    source_url: props.post?.source_url ?? '',
     og_image: props.post?.og_image ?? '',
     status: props.post?.status ?? 'draft',
     published_at: props.post?.published_at?.slice(0, 16) ?? '',
@@ -69,6 +74,7 @@ function uploadFeaturedImage(e) {
         .post(route('admin.media.store'), data, { headers: { Accept: 'application/json' } })
         .then(({ data: media }) => {
             form.featured_image = `/storage/${media.path}`;
+            form.og_image = `/storage/${media.path}`;
         })
         .finally(() => (uploading.value = false));
 }
@@ -126,6 +132,13 @@ const tagsArray = computed(() => tagsText.value.split(',').map((t) => t.trim()).
                             </select>
                         </div>
                         <div>
+                            <InputLabel for="author_id" value="Posted by" />
+                            <select id="author_id" v-model="form.author_id" class="mt-1 w-full rounded-md border-gray-300 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
+                                <option v-for="author in authors" :key="author.id" :value="author.id">{{ author.name }}</option>
+                            </select>
+                            <InputError :message="form.errors.author_id" />
+                        </div>
+                        <div>
                             <InputLabel for="title" value="Title" />
                             <TextInput id="title" v-model="form.title" class="mt-1 w-full" required />
                             <InputError :message="form.errors.title" />
@@ -154,6 +167,22 @@ const tagsArray = computed(() => tagsText.value.split(',').map((t) => t.trim()).
                             <img v-if="form.featured_image" :src="form.featured_image" class="h-16 w-24 rounded object-cover" />
                             <input type="file" accept="image/*" :disabled="uploading" @change="uploadFeaturedImage" />
                             <span v-if="uploading" class="text-sm text-gray-500">Uploading…</span>
+                        </div>
+                    </div>
+
+                    <div v-if="form.type === 'news'" class="grid gap-4 rounded-md border border-gray-200 p-4 dark:border-gray-700 sm:grid-cols-2">
+                        <div class="sm:col-span-2">
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Confirmed source</p>
+                            <p class="text-xs text-gray-500">Shown on the public news page as "Source: name" — cite where this news came from.</p>
+                        </div>
+                        <div>
+                            <InputLabel for="source_name" value="Source name" />
+                            <TextInput id="source_name" v-model="form.source_name" class="mt-1 w-full" placeholder="e.g. Reuters, FBR press release" />
+                        </div>
+                        <div>
+                            <InputLabel for="source_url" value="Source URL" />
+                            <TextInput id="source_url" v-model="form.source_url" class="mt-1 w-full" placeholder="https://…" />
+                            <InputError :message="form.errors.source_url" />
                         </div>
                     </div>
 

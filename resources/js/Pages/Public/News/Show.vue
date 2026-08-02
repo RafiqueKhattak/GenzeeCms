@@ -1,7 +1,9 @@
 <script setup>
+import AuthorAvatar from '@/Components/Public/AuthorAvatar.vue';
 import SeoHead from '@/Components/Public/SeoHead.vue';
 import ToolTile from '@/Components/Public/ToolTile.vue';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
+import { departmentIcon } from '@/Support/newsDepartments';
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
@@ -23,7 +25,9 @@ const jsonLd = computed(() => [
         datePublished: props.post.published_at,
         dateModified: props.post.updated_at,
         inLanguage: 'en',
-        author: { '@type': 'Person', name: 'Rafique Khattak' },
+        author: props.post.author
+            ? { '@type': 'Person', name: props.post.author.name }
+            : { '@type': 'Organization', name: site.value.name, url: site.value.url },
         publisher: { '@type': 'Organization', name: site.value.name, url: site.value.url, logo: site.value.ogImage },
         mainEntityOfPage: props.canonical,
     },
@@ -49,10 +53,25 @@ const jsonLd = computed(() => [
     />
     <PublicLayout :breadcrumbs="[{ label: 'Home', href: '/' }, { label: 'News', href: '/news/' }, { label: post.title }]">
         <article class="prose">
+            <span v-if="post.category" class="dept-badge">
+                <span aria-hidden="true">{{ departmentIcon(post.category.slug) }}</span> {{ post.category.name }}
+            </span>
             <h1>{{ post.title }}</h1>
-            <p class="article-meta">Published: {{ post.published_at?.slice(0, 10) }}</p>
+            <div class="byline">
+                <AuthorAvatar v-if="post.author" :author="post.author" :size="32" />
+                <span>
+                    <span v-if="post.author" class="byline-name">{{ post.author.name }}</span>
+                    <span class="article-meta">Published: {{ post.published_at?.slice(0, 10) }}</span>
+                </span>
+            </div>
             <img v-if="post.featured_image" :src="post.featured_image" :alt="post.title" class="featured-image" />
             <div v-html="post.body" />
+
+            <p v-if="post.source_name" class="source-citation">
+                Source:
+                <a v-if="post.source_url" :href="post.source_url" target="_blank" rel="noopener noreferrer nofollow">{{ post.source_name }}</a>
+                <span v-else>{{ post.source_name }}</span>
+            </p>
 
             <section v-if="related?.length" class="related-tools">
                 <h2>Related news</h2>
@@ -72,10 +91,47 @@ const jsonLd = computed(() => [
 </template>
 
 <style scoped>
+.dept-badge {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent-deep, #5b21b6);
+    background: var(--accent-soft, #ede9fe);
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    margin-bottom: 0.6rem;
+}
+
+.byline {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: var(--s-4, 1rem);
+}
+
+.byline-name {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.byline .article-meta {
+    display: block;
+    margin-bottom: 0;
+}
+
 .featured-image {
     width: 100%;
     height: auto;
     border-radius: var(--radius, 12px);
     margin-bottom: var(--s-5, 1.5rem);
+}
+
+.source-citation {
+    font-size: 0.85rem;
+    color: var(--ink-muted, #6b7280);
+    border-top: 1px solid var(--border, #e5e7eb);
+    padding-top: var(--s-3, 0.75rem);
+    margin-top: var(--s-5, 1.5rem);
 }
 </style>

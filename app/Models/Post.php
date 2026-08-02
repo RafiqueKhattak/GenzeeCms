@@ -14,7 +14,8 @@ class Post extends Model
     protected $fillable = [
         'type', 'category_id', 'author_id', 'slug', 'title', 'excerpt', 'body',
         'featured_image', 'meta_title', 'meta_description', 'canonical_override',
-        'og_image', 'status', 'published_at', 'views', 'adsense_score', 'adsense_issues',
+        'source_name', 'source_url', 'og_image', 'status', 'published_at', 'views',
+        'adsense_score', 'adsense_issues',
     ];
 
     protected $casts = [

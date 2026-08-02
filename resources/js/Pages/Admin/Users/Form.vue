@@ -6,16 +6,19 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 const props = defineProps({
     user: { type: Object, default: null },
 });
 
 const isEdit = !!props.user;
+const uploading = ref(false);
 
 const form = useForm({
     name: props.user?.name ?? '',
     email: props.user?.email ?? '',
+    avatar_path: props.user?.avatar_path ?? '',
     role: props.user?.role ?? 'editor',
     is_active: props.user?.is_active ?? true,
     password: '',
@@ -27,6 +30,20 @@ function submit() {
     } else {
         form.post(route('admin.users.store'));
     }
+}
+
+function uploadAvatar(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    uploading.value = true;
+    const data = new FormData();
+    data.append('file', file);
+    window.axios
+        .post(route('admin.media.store'), data, { headers: { Accept: 'application/json' } })
+        .then(({ data: media }) => {
+            form.avatar_path = `/storage/${media.path}`;
+        })
+        .finally(() => (uploading.value = false));
 }
 
 function sendResetLink() {
@@ -45,6 +62,16 @@ function sendResetLink() {
         <div class="py-8">
             <div class="mx-auto max-w-xl sm:px-6 lg:px-8">
                 <form class="space-y-6 rounded-lg bg-white p-6 shadow dark:bg-gray-800" @submit.prevent="submit">
+                    <div>
+                        <InputLabel value="Avatar" />
+                        <div class="mt-1 flex items-center gap-3">
+                            <img v-if="form.avatar_path" :src="form.avatar_path" class="h-14 w-14 rounded-full object-cover" />
+                            <span v-else class="flex h-14 w-14 items-center justify-center rounded-full bg-gray-200 text-sm text-gray-500 dark:bg-gray-700">No photo</span>
+                            <input type="file" accept="image/*" :disabled="uploading" @change="uploadAvatar" />
+                            <span v-if="uploading" class="text-sm text-gray-500">Uploading…</span>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Optional — without one, this author's initials show in a coloured circle wherever their byline appears.</p>
+                    </div>
                     <div>
                         <InputLabel for="name" value="Name" />
                         <TextInput id="name" v-model="form.name" class="mt-1 w-full" required />

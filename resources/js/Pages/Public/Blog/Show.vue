@@ -1,4 +1,5 @@
 <script setup>
+import AuthorAvatar from '@/Components/Public/AuthorAvatar.vue';
 import SeoHead from '@/Components/Public/SeoHead.vue';
 import ToolTile from '@/Components/Public/ToolTile.vue';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
@@ -23,7 +24,9 @@ const jsonLd = computed(() => [
         datePublished: props.post.published_at,
         dateModified: props.post.updated_at,
         inLanguage: 'en',
-        author: { '@type': 'Organization', name: site.value.name, url: site.value.url },
+        author: props.post.author
+            ? { '@type': 'Person', name: props.post.author.name }
+            : { '@type': 'Organization', name: site.value.name, url: site.value.url },
         publisher: { '@type': 'Organization', name: site.value.name, url: site.value.url },
         mainEntityOfPage: props.canonical,
     },
@@ -50,7 +53,13 @@ const jsonLd = computed(() => [
     <PublicLayout :breadcrumbs="[{ label: 'Home', href: '/' }, { label: 'Blog', href: '/blog/' }, { label: post.title }]">
         <article class="prose">
             <h1>{{ post.title }}</h1>
-            <p class="article-meta">Published: {{ post.published_at?.slice(0, 10) }}</p>
+            <div class="byline">
+                <AuthorAvatar v-if="post.author" :author="post.author" :size="32" />
+                <span>
+                    <span v-if="post.author" class="byline-name">{{ post.author.name }}</span>
+                    <span class="article-meta">Published: {{ post.published_at?.slice(0, 10) }}</span>
+                </span>
+            </div>
             <img v-if="post.featured_image" :src="post.featured_image" :alt="post.title" class="featured-image" />
             <div v-html="post.body" />
 
@@ -72,6 +81,24 @@ const jsonLd = computed(() => [
 </template>
 
 <style scoped>
+.byline {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: var(--s-4, 1rem);
+}
+
+.byline-name {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.byline .article-meta {
+    display: block;
+    margin-bottom: 0;
+}
+
 .featured-image {
     width: 100%;
     height: auto;

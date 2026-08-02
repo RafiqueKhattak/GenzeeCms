@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Site;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Models\Post;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
@@ -15,12 +16,44 @@ class PostController extends Controller
 
     public function blogIndex(): Response
     {
-        return $this->index('blog', 'Blog');
+        $posts = Cache::remember(self::INDEX_CACHE_KEY_PREFIX.'blog', now()->addMinutes(10), function () {
+            return Post::query()
+                ->where('type', 'blog')
+                ->published()
+                ->with('author:id,name,avatar_path')
+                ->orderByDesc('published_at')
+                ->get(['id', 'title', 'slug', 'excerpt', 'published_at', 'featured_image', 'author_id']);
+        });
+
+        return Inertia::render('Public/Blog/Index', [
+            'posts' => $posts,
+            'canonical' => canonical_url('/blog/'),
+        ]);
     }
 
     public function newsIndex(): Response
     {
-        return $this->index('news', 'News');
+        $data = Cache::remember(self::INDEX_CACHE_KEY_PREFIX.'news', now()->addMinutes(10), function () {
+            $posts = Post::query()
+                ->where('type', 'news')
+                ->published()
+                ->with('category:id,name,slug')
+                ->orderByDesc('published_at')
+                ->get(['id', 'title', 'slug', 'published_at', 'category_id', 'views']);
+
+            return [
+                'posts' => $posts,
+                'departments' => Category::where('type', 'news')->orderBy('order')->get(['id', 'name', 'slug']),
+                'ticker' => $posts->sortByDesc('views')->take(12)->values(),
+            ];
+        });
+
+        return Inertia::render('Public/News/Index', [
+            'posts' => $data['posts'],
+            'departments' => $data['departments'],
+            'ticker' => $data['ticker'],
+            'canonical' => canonical_url('/news/'),
+        ]);
     }
 
     public function blogShow(string $slug): Response
@@ -33,29 +66,13 @@ class PostController extends Controller
         return $this->show('news', $slug);
     }
 
-    protected function index(string $type, string $label): Response
-    {
-        $posts = Cache::remember(self::INDEX_CACHE_KEY_PREFIX.$type, now()->addMinutes(10), function () use ($type) {
-            return Post::query()
-                ->where('type', $type)
-                ->published()
-                ->orderByDesc('published_at')
-                ->get(['title', 'slug', 'excerpt', 'published_at']);
-        });
-
-        return Inertia::render("Public/{$label}/Index", [
-            'posts' => $posts,
-            'canonical' => canonical_url("/{$type}/"),
-        ]);
-    }
-
     protected function show(string $type, string $slug): Response
     {
         $post = Post::query()
             ->where('type', $type)
             ->where('slug', $slug)
             ->published()
-            ->with('tags')
+            ->with(['tags', 'category:id,name,slug', 'author:id,name,avatar_path'])
             ->firstOrFail();
 
         $post->increment('views');

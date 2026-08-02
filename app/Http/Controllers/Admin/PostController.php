@@ -7,6 +7,7 @@ use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
+use App\Models\User;
 use App\Support\HtmlSanitizer;
 use App\Support\SeoScorer;
 use App\Http\Controllers\Site\SeoController;
@@ -56,6 +57,8 @@ class PostController extends Controller
             'defaultType' => $keyword?->suggested_type ?? $request->query('type', 'blog'),
             'categories' => Category::whereIn('type', ['blog', 'news'])->orderBy('order')->get(),
             'tags' => Tag::orderBy('name')->get(),
+            'authors' => User::where('is_active', true)->orderBy('name')->get(['id', 'name']),
+            'defaultAuthorId' => $request->user()->id,
             'fromKeyword' => $keyword ? [
                 'id' => $keyword->id,
                 'keyword' => $keyword->keyword,
@@ -68,7 +71,7 @@ class PostController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validated($request);
-        $data['author_id'] = $request->user()->id;
+        $data['author_id'] = $data['author_id'] ?? $request->user()->id;
 
         $post = Post::create($data);
         $this->syncTags($post, $request->input('tags', []));
@@ -96,6 +99,8 @@ class PostController extends Controller
             'defaultType' => $post->type,
             'categories' => Category::whereIn('type', ['blog', 'news'])->orderBy('order')->get(),
             'tags' => Tag::orderBy('name')->get(),
+            'authors' => User::where('is_active', true)->orderBy('name')->get(['id', 'name']),
+            'defaultAuthorId' => $post->author_id,
         ]);
     }
 
@@ -214,6 +219,7 @@ class PostController extends Controller
         $data = $request->validate([
             'type' => ['required', Rule::in(['blog', 'news'])],
             'category_id' => ['nullable', 'exists:categories,id'],
+            'author_id' => ['nullable', 'exists:users,id'],
             'slug' => ['required', 'alpha_dash', Rule::unique('posts', 'slug')->where('type', $request->type)->ignore($ignoreId)],
             'title' => ['required', 'string', 'max:255'],
             'excerpt' => ['nullable', 'string', 'max:1000'],
@@ -222,6 +228,8 @@ class PostController extends Controller
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:500'],
             'canonical_override' => ['nullable', 'string', 'max:500'],
+            'source_name' => ['nullable', 'string', 'max:255'],
+            'source_url' => ['nullable', 'string', 'max:500', 'url'],
             'og_image' => ['nullable', 'string', 'max:500'],
             'status' => ['required', Rule::in(['draft', 'scheduled', 'published'])],
             'published_at' => ['nullable', 'date', Rule::requiredIf($request->status === 'scheduled')],

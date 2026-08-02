@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             SettingsSeeder::class,
             GenZContentSeeder::class,
+            NewsDepartmentSeeder::class,
+            AuthorsSeeder::class,
         ]);
     }
 }

@@ -521,15 +521,26 @@ details.fold .fold-body { padding: 0 var(--s-4) var(--s-4); }
 /* --------------------------------------------------------------------------
    Article / long-form content
    -------------------------------------------------------------------------- */
-.prose { max-width: 46rem; }
-.prose ul, .prose ol { padding-left: 1.4rem; margin: 0 0 var(--s-4); }
-.prose li { margin-bottom: 0.35rem; }
+.prose {
+  max-width: 42rem;
+  font-size: 1.06rem;
+  line-height: 1.78;
+}
+.prose p { margin: 0 0 var(--s-5); }
+.prose h2, .prose h3 { letter-spacing: -0.01em; }
+.prose h2 { margin-top: var(--s-7); }
+.prose h3 { margin-top: var(--s-6); }
+.prose ul, .prose ol { padding-left: 1.4rem; margin: 0 0 var(--s-5); }
+.prose li { margin-bottom: 0.5rem; line-height: 1.7; }
+.prose a { text-underline-offset: 3px; }
+.prose img { border-radius: var(--radius); margin: var(--s-4) 0; }
 .prose blockquote {
-  margin: var(--s-4) 0;
+  margin: var(--s-5) 0;
   padding: var(--s-3) var(--s-4);
   border-left: 4px solid var(--accent);
   background: var(--surface-tint);
   border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 1.02rem;
 }
 .formula {
   font-family: "Courier New", monospace;
