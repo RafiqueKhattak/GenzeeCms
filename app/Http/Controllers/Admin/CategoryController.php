@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Category;
+use App\Http\Controllers\Site\ToolController as PublicToolController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
@@ -34,6 +36,7 @@ class CategoryController extends Controller
         $data['order'] = Category::where('type', $data['type'])->max('order') + 1;
 
         Category::create($data);
+        Cache::forget(PublicToolController::INDEX_CACHE_KEY);
 
         return back()->with('success', 'Category created.');
     }
@@ -48,6 +51,7 @@ class CategoryController extends Controller
 
         $data['slug'] = Str::slug($data['name']);
         $category->update($data);
+        Cache::forget(PublicToolController::INDEX_CACHE_KEY);
 
         return back()->with('success', 'Category updated.');
     }
@@ -55,6 +59,7 @@ class CategoryController extends Controller
     public function destroy(Category $category): RedirectResponse
     {
         $category->delete();
+        Cache::forget(PublicToolController::INDEX_CACHE_KEY);
 
         ActivityLog::record('deleted', "Deleted category \"{$category->name}\"");
 

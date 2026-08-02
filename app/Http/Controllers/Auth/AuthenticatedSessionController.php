@@ -33,6 +33,22 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = Auth::user();
+
+        if ($user->hasEnabledTwoFactor()) {
+            // Password was correct, but don't complete the session yet —
+            // downgrade back to a guest and hand off to
+            // TwoFactorChallengeController, which finishes Auth::login()
+            // once the TOTP/recovery code checks out.
+            $remember = $request->boolean('remember');
+            Auth::guard('web')->logout();
+
+            $request->session()->put('login.2fa.user_id', $user->id);
+            $request->session()->put('login.2fa.remember', $remember);
+
+            return redirect()->route('two-factor.challenge');
+        }
+
         return redirect()->intended(route('admin.dashboard', absolute: false));
     }
 

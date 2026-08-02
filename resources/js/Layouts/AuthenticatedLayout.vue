@@ -1,13 +1,14 @@
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 
 const showingNavigationDropdown = ref(false);
+const flash = computed(() => usePage().props.flash ?? {});
 </script>
 
 <template>
@@ -236,6 +237,12 @@ const showingNavigationDropdown = ref(false);
                     </div>
                 </div>
             </nav>
+
+            <!-- Flash messages -->
+            <div v-if="flash.success || flash.error" class="mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
+                <div v-if="flash.success" class="rounded-md bg-green-50 p-4 text-sm text-green-700 dark:bg-green-900/40 dark:text-green-200">{{ flash.success }}</div>
+                <div v-if="flash.error" class="mt-2 rounded-md bg-red-50 p-4 text-sm text-red-700 dark:bg-red-900/40 dark:text-red-200">{{ flash.error }}</div>
+            </div>
 
             <!-- Page Heading -->
             <header

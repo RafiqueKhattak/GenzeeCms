@@ -85,4 +85,23 @@ class UserController extends Controller
 
         return back()->with('success', 'User deleted.');
     }
+
+    /**
+     * Convenience action so an admin doesn't have to tell a new/locked-out
+     * user to go find the "forgot password?" link on the login page
+     * themselves — triggers the same underlying Breeze reset-link flow.
+     * Requires a working mail transport (MAIL_MAILER) to actually deliver.
+     */
+    public function sendResetLink(User $user): RedirectResponse
+    {
+        $status = \Illuminate\Support\Facades\Password::sendResetLink(['email' => $user->email]);
+
+        if ($status !== \Illuminate\Support\Facades\Password::RESET_LINK_SENT) {
+            return back()->with('error', "Couldn't send a reset link to {$user->email} ({$status}).");
+        }
+
+        ActivityLog::record('updated', "Sent a password reset link to \"{$user->name}\"", $user);
+
+        return back()->with('success', "Password reset link sent to {$user->email}.");
+    }
 }

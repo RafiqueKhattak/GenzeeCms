@@ -111,6 +111,23 @@ v20.20.2 via `.nvmrc` in interactive shells.
    `<script type="application/ld+json">` already present in the raw HTML
    (proof SSR is working, not just client-rendered).
 
+## Laravel scheduler (one-time cron setup)
+
+`posts:publish-due` (flips a scheduled post's status to `published` once its
+publish time passes — see `routes/console.php`) only runs if the standard
+Laravel scheduler cron entry exists for this app. Add it once, for the
+`wardah` user, completely separate from any Frappe cron entries:
+
+```bash
+crontab -l   # check what's already there first
+crontab -e   # add this line if it's not already present:
+* * * * * cd /opt/apps/LaraCms && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Verify what's due to run with `php artisan schedule:list` from
+`/opt/apps/LaraCms`. This is a manual, one-time step — `deploy.sh`
+deliberately does not touch crontab itself.
+
 ## Redeploying (every time after the first)
 
 ```bash

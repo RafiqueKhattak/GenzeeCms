@@ -47,6 +47,17 @@ return Application::configure(basePath: dirname(__DIR__))
                 // middleware pipeline, so HandleInertiaRequests::share()
                 // never ran for this request — share its props manually or
                 // PublicLayout/SeoHead crash reading usePage().props.site.
+                //
+                // For a URL that matched no route at all (as opposed to a
+                // route that matched but whose record was missing), the
+                // 'web' middleware group — including StartSession — never
+                // ran either, so $request->session() would throw "Session
+                // store not set on request" the moment share() touches it.
+                // Bind a session manually in that case before sharing.
+                if (! $request->hasSession()) {
+                    $request->setLaravelSession(app('session')->driver());
+                }
+
                 \Inertia\Inertia::share(app(\App\Http\Middleware\HandleInertiaRequests::class)->share($request));
 
                 return \Inertia\Inertia::render('Public/Gone', ['path' => $path])

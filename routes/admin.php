@@ -16,7 +16,16 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+    Route::get('tools/trash', [ToolController::class, 'trash'])->name('tools.trash');
+    Route::post('tools/bulk-action', [ToolController::class, 'bulk'])->name('tools.bulk');
+    Route::post('tools/{id}/restore', [ToolController::class, 'restore'])->name('tools.restore');
+    Route::delete('tools/{id}/force-delete', [ToolController::class, 'forceDelete'])->name('tools.force-delete');
     Route::resource('tools', ToolController::class)->except('show');
+
+    Route::get('posts/trash', [PostController::class, 'trash'])->name('posts.trash');
+    Route::post('posts/bulk-action', [PostController::class, 'bulk'])->name('posts.bulk');
+    Route::post('posts/{id}/restore', [PostController::class, 'restore'])->name('posts.restore');
+    Route::delete('posts/{id}/force-delete', [PostController::class, 'forceDelete'])->name('posts.force-delete');
     Route::resource('posts', PostController::class)->except('show');
 
     Route::get('pages', [PageController::class, 'index'])->name('pages.index');
@@ -43,6 +52,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::middleware('admin.role')->group(function () {
         Route::get('settings', [SettingController::class, 'edit'])->name('settings.edit');
         Route::post('settings', [SettingController::class, 'update'])->name('settings.update');
+        Route::post('users/{user}/send-reset-link', [UserController::class, 'sendResetLink'])->name('users.send-reset-link');
         Route::resource('users', UserController::class)->except('show');
     });
 });

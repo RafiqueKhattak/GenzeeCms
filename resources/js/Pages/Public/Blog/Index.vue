@@ -1,9 +1,10 @@
 <script setup>
+import { computed, ref } from 'vue';
 import SeoHead from '@/Components/Public/SeoHead.vue';
 import ToolTile from '@/Components/Public/ToolTile.vue';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 
-defineProps({
+const props = defineProps({
     posts: { type: Array, required: true },
     canonical: { type: String, required: true },
 });
@@ -11,6 +12,17 @@ defineProps({
 function formatDate(value) {
     return value?.slice(0, 10);
 }
+
+const query = ref('');
+
+const filteredPosts = computed(() => {
+    const q = query.value.trim().toLowerCase();
+    if (!q) return props.posts;
+
+    return props.posts.filter(
+        (post) => post.title.toLowerCase().includes(q) || (post.excerpt ?? '').toLowerCase().includes(q)
+    );
+});
 </script>
 
 <template>
@@ -26,10 +38,18 @@ function formatDate(value) {
                 Plain-English, evergreen guides to the maths behind everyday money, health and tech decisions — each
                 one paired with a free tool that does the arithmetic for you.
             </p>
+            <input
+                v-model="query"
+                type="search"
+                class="post-search"
+                placeholder="Search blog posts…"
+                aria-label="Search blog posts"
+            />
         </section>
+        <p v-if="filteredPosts.length === 0" style="color: var(--ink-muted)">No posts match "{{ query }}".</p>
         <ul class="post-list">
             <ToolTile
-                v-for="post in posts"
+                v-for="post in filteredPosts"
                 :key="post.slug"
                 :href="`/blog/${post.slug}/`"
                 icon="✎"
@@ -39,3 +59,15 @@ function formatDate(value) {
         </ul>
     </PublicLayout>
 </template>
+
+<style scoped>
+.post-search {
+    width: 100%;
+    max-width: 28rem;
+    margin-top: 1rem;
+    padding: 0.65rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border, #ddd);
+    font-size: 1rem;
+}
+</style>

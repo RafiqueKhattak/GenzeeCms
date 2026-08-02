@@ -31,6 +31,10 @@ class DashboardController extends Controller
             'recentPosts' => Post::latest('updated_at')
                 ->take(5)
                 ->get(['id', 'title', 'type', 'status', 'updated_at']),
+            'mostViewedPosts' => Post::where('status', 'published')
+                ->orderByDesc('views')
+                ->take(5)
+                ->get(['id', 'title', 'type', 'views']),
         ]);
     }
 }

@@ -5,7 +5,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 
 const props = defineProps({
     user: { type: Object, default: null },
@@ -27,6 +27,10 @@ function submit() {
     } else {
         form.post(route('admin.users.store'));
     }
+}
+
+function sendResetLink() {
+    router.post(route('admin.users.send-reset-link', props.user.id));
 }
 </script>
 
@@ -72,6 +76,21 @@ function submit() {
                         <Link :href="route('admin.users.index')" class="text-sm text-gray-600 hover:underline dark:text-gray-400">Cancel</Link>
                     </div>
                 </form>
+
+                <div v-if="isEdit" class="mt-6 rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+                    <h3 class="font-semibold text-gray-900 dark:text-gray-100">Password reset</h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                        Emails {{ user.email }} a link to set their own new password, instead of you setting one for
+                        them above.
+                    </p>
+                    <button
+                        type="button"
+                        class="mt-3 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                        @click="sendResetLink"
+                    >
+                        Send password reset link
+                    </button>
+                </div>
             </div>
         </div>
     </AuthenticatedLayout>

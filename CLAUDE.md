@@ -64,6 +64,114 @@ which is a well-tolerated HTML parsing quirk with zero real-world impact,
 not a data bug — verified by hand, not worth patching a third-party lib
 over).
 
+## Post-launch improvements (2 Aug 2026 batch)
+
+After launch, a full pass of public-site and admin-panel improvements was
+implemented and merged in one batch — all covered by new Pest tests
+(`php artisan test`, 47 passing). Each is small enough to reference by name
+rather than needing separate write-ups:
+
+- **Public search** — client-side filter box on Tools/Blog/News index pages
+  (`resources/js/Pages/Public/{Tools,Blog,News}/Index.vue`).
+- **HTML sanitization** — `App\Support\HtmlSanitizer` (whitelist-based,
+  `DOMDocument`, no new dependency) strips `<script>`/event-handler
+  attrs/`javascript:` URLs from `Tool.guide_content`/`Post.body`/`Page.body`
+  on save, before they're ever rendered via `v-html` on the public site.
+- **Related posts** — Blog/News show pages now show a same-category related
+  strip, mirroring the existing tools related strip.
+- **Admin dashboard** — added a "most viewed posts" widget (`Post.views` was
+  tracked but never surfaced anywhere before).
+- **Public listing caching** — `Site\ToolController`/`Site\PostController`
+  index queries and `Site\SeoController::sitemap()` are now
+  `Cache::remember()`'d (10 min / 1 hr TTL), busted immediately from the
+  relevant Admin controllers on save so publishing isn't delayed by the TTL.
+  Sitemap `lastmod` for index pages now reflects real content dates instead
+  of always being `now()`.
+- **Image optimization** — `App\Support\ImageOptimizer` (pure GD, no new
+  dependency) resizes (max 2000px) and recompresses images on upload in
+  `Admin\MediaController::store()`.
+- **Soft deletes + Trash** — `Tool` and `Post` now use `SoftDeletes`
+  (migrations `2026_08_02_*_add_soft_deletes_*`). Deleting moves a row to
+  `/admin/tools/trash` or `/admin/posts/trash` instead of destroying it;
+  restore and permanent-delete actions live there. Deleting also renames the
+  slug to `{slug}-deleted-{id}` so the original slug is immediately reusable
+  (DB-level unique indexes don't know about `deleted_at`) — `restore()`
+  tries to reclaim the original slug if it's still free.
+- **Media "in use" guard** — `Admin\MediaController::destroy()` now scans
+  Tool/Post/Page/Setting fields for the file's `/storage/{path}` before
+  deleting, and blocks with a named list of what's still using it.
+- **Flash messages now actually render** — found while building the above:
+  every `->with('success'/'error', ...)` across the whole admin panel was
+  silently dropped; nothing shared or rendered it. Fixed by adding a `flash`
+  key to `HandleInertiaRequests::share()` and a banner in
+  `AuthenticatedLayout.vue`. If you're debugging "why didn't my admin action
+  show a message", this is already fixed — check the banner, not the network
+  tab.
+- **Admin password reset** — a "Send password reset link" button on the
+  Users edit form (`Admin\UserController::sendResetLink`), using Breeze's
+  existing reset-link flow. Requires a real `MAIL_MAILER` in production;
+  local/testing use `log`/`array` so nothing is actually delivered there.
+- **TOTP two-factor auth** — self-contained RFC 6238 implementation
+  (`App\Services\TwoFactor\TotpService`, verified against the official RFC
+  test vectors, no new dependency). Opt-in per account from
+  `/profile/two-factor` (manual key entry only, no QR image — deliberately
+  avoids sending the secret to any third-party QR-rendering service).
+  8 one-time recovery codes shown once at enable time. Login flow: on a
+  2FA-enabled account, `AuthenticatedSessionController::store()` verifies
+  the password via the normal `Auth::attempt()` path, then immediately
+  logs back out and stashes the user id in session
+  (`login.2fa.user_id`) rather than completing the session — `/two-factor-challenge`
+  (`Auth\TwoFactorChallengeController`) is what actually finishes
+  `Auth::login()` once a TOTP or recovery code checks out. This only
+  branches for accounts with 2FA enabled; normal login is unaffected.
+- **Scheduled-post auto-publish** — `php artisan posts:publish-due`
+  (`app/Console/Commands/PublishDuePosts.php`), registered on Laravel's
+  scheduler in `routes/console.php` (`everyMinute()`). The public site
+  already treated a scheduled post as live once `published_at` passed
+  (`Post::scopePublished()`), but the `status` column itself never flipped
+  from `scheduled` to `published`, so the admin list kept the stale label
+  forever — this command just corrects it and busts the relevant caches.
+  **Needs a one-time server cron entry** — see "Laravel scheduler" in
+  `deploy/README.md`; not automated by `deploy.sh` on purpose (crontab
+  changes are deliberately manual, see "Absolute rules for server work").
+- **Bulk actions** — checkbox selection + publish/set-draft/trash on the
+  Tools and Posts admin index pages, via `POST /admin/{tools,posts}/bulk-action`.
+- **Real bugs found and fixed while doing the above** (worth knowing about
+  if you hit similar symptoms):
+  - Four Breeze auth controllers (`ConfirmablePasswordController`,
+    `EmailVerificationNotificationController`,
+    `EmailVerificationPromptController`, `VerifyEmailController`) redirected
+    to `route('dashboard')`, which was never renamed to this project's
+    actual `admin.dashboard` route — a 500 `RouteNotFoundException` for any
+    user completing email verification or password confirmation. Fixed.
+  - The 410/redirect exception handler in `bootstrap/app.php` crashed with
+    "Session store not set on request" (a 500, not a 410) specifically for
+    a URL that matched **no route at all** (as opposed to a route that
+    matched but whose record was missing) — the `web` middleware group,
+    including `StartSession`, never runs for a totally unmatched path, so
+    `HandleInertiaRequests::share()` touching `$request->session()` threw.
+    This is exactly the common case for a genuinely retired legacy URL.
+    Fixed by binding a session manually
+    (`$request->setLaravelSession(app('session')->driver())`) before
+    sharing, only when `! $request->hasSession()`. Covered by
+    `tests/Feature/RedirectAndGoneTest.php`.
+  - `Admin\ToolController::validated()` threw "Undefined array key
+    'keywords'" if the `keywords` field was omitted from the request
+    entirely (not just empty) — only masked before because the Tools form
+    always sent the field. Fixed with `?? null`.
+
+New/changed test files: `tests/Unit/PolicyCheckerTest.php`,
+`tests/Feature/RedirectAndGoneTest.php`,
+`tests/Feature/Admin/{Tool,Post}CrudTest.php`,
+`tests/Feature/Auth/TwoFactorAuthenticationTest.php`. Also fixed several
+pre-existing stock-Breeze tests that referenced the nonexistent `dashboard`
+route name, and deleted `RegistrationTest.php` (self-registration doesn't
+exist in this app — see "Users" below). `phpunit.xml` now sets
+`INERTIA_SSR_ENABLED=false` — tests shouldn't depend on a running Node SSR
+process, and without this, any test rendering an Inertia response would
+either hang or 500 trying to reach an SSR server that isn't there in CI/test
+runs.
+
 ## Git identity — IMPORTANT, do not skip
 
 The user has explicitly required that **no Claude/Anthropic name or icon
@@ -216,7 +324,8 @@ production data and must be treated as untouchable infrastructure:
   resolving `Tool.component` through `Components/Calculators/registry.js`),
   a rich-text guide/article below it (`Tool.guide_content`), an FAQ block
   (`ToolFaq` rows → also emitted as FAQPage JSON-LD), and a related-tools
-  strip (self-referencing `tool_related` pivot).
+  strip (self-referencing `tool_related` pivot). The index page has a
+  client-side search/filter box (matches title/short_description).
 - **46 calculators**, one Vue component each under
   `resources/js/Components/Calculators/` — finance/tax (loan, compound/
   simple interest, salary tax for UK/UAE/KSA/India/US/Canada/Pakistan, VAT,
@@ -233,7 +342,9 @@ production data and must be treated as untouchable infrastructure:
 - **Blog (`/blog/`, `/blog/{slug}/`)** and **News (`/news/`,
   `/news/{slug}/`)** — `Site\PostController`, both backed by the single
   `posts` table (`type` column). Blog and news share the same admin editor,
-  policy checker, and JSON-LD (Article/NewsArticle) logic.
+  policy checker, and JSON-LD (Article/NewsArticle) logic. Index pages have
+  a client-side search box; show pages have a same-category related-posts
+  strip.
 - **Static pages** (`/about/`, `/contact/`, `/privacy-policy/`,
   `/disclaimer/`, `/terms/`, `/editorial/`) — `Site\PageController` →
   `Public/StaticPage.vue`, backed by the `pages` table. This set is fixed
@@ -268,20 +379,28 @@ Every mutating admin action is recorded to `ActivityLog` via
 - **Tools CRUD** (`Admin\ToolController`, resource except `show`) — fields:
   category, slug, title, icon, `component` (the Vue component name to
   render — must match a key in `registry.js` or the tool falls back to
-  ComingSoon), short description, guide content (TipTap rich text), a
+  ComingSoon), short description, guide content (TipTap rich text,
+  sanitized server-side on save via `App\Support\HtmlSanitizer`), a
   comma-separated keywords field (stored as JSON array), meta title/
   description, OG image, status (draft/published — publishing stamps
   `published_at`), display order, an inline repeatable FAQ editor
   (question/answer pairs, replaces all FAQs on every save), and a related-
-  tools multi-select (self-referencing pivot with order).
+  tools multi-select (self-referencing pivot with order). Soft-deletes
+  (`Tool` uses `SoftDeletes`) — delete moves it to `/admin/tools/trash`
+  (restore/permanent-delete there), not a hard delete. Index page supports
+  checkbox multi-select + bulk publish/set-draft/trash
+  (`POST /admin/tools/bulk-action`).
 - **Posts CRUD** (`Admin\PostController`, resource except `show`, shared by
   blog and news) — fields: type (blog/news), category, slug (unique per
-  type, not globally), title, excerpt, body (TipTap), featured image, meta
-  title/description, canonical override, OG image, status (draft/
-  scheduled/published — scheduled requires `published_at`, publishing with
-  no date stamps now), tags (free-text, `firstOrCreate`-synced against the
-  `tags` table by slug). The **AdSense policy checker** (see below) runs
-  live in this form.
+  type, not globally), title, excerpt, body (TipTap, sanitized server-side
+  on save), featured image, meta title/description, canonical override, OG
+  image, status (draft/scheduled/published — scheduled requires
+  `published_at`, publishing with no date stamps now — see `posts:publish-due`
+  below for why a scheduled post's status label can go stale), tags
+  (free-text, `firstOrCreate`-synced against the `tags` table by slug). The
+  **AdSense policy checker** (see below) runs live in this form. Same
+  soft-delete/trash/bulk-action pattern as Tools, at `/admin/posts/trash`
+  and `POST /admin/posts/bulk-action`.
 - **Pages** (`Admin\PageController`, edit-only — index + edit + update, no
   create/delete since the six static pages are fixed) — title, body
   (TipTap), meta title/description.
@@ -293,13 +412,26 @@ Every mutating admin action is recorded to `ActivityLog` via
   png/gif/webp/svg; video: mp4/webm/mov; 20MB max), stored under
   `storage/app/public/media/{Y}/{m}` via the `public` disk, with alt text.
   Used both as a standalone library (`/admin/media`) and as an image picker
-  inside TipTap editors.
+  inside TipTap editors. Images (not gifs/svgs) are resized (max 2000px)
+  and recompressed on upload via `App\Support\ImageOptimizer` (pure GD).
+  Deleting a file is blocked with a named list of referencing
+  tools/posts/pages/settings if it's still in use anywhere (scans
+  `og_image`/`featured_image`/`logo_path`/`favicon_path` fields and rich
+  text bodies for the `/storage/{path}` URL).
 - **Users** (`Admin\UserController`, `admin` role only) — name, email,
   role (`admin`|`editor`), active flag, password. Self-deletion is blocked.
   `EnsureAdminAccess` middleware lets both `admin` and `editor` into
   `/admin`; `EnsureAdminRole` further restricts Users/Settings to `admin`
   only. There is no public registration — accounts exist only via this
-  screen.
+  screen. A "Send password reset link" button on the edit form triggers
+  Breeze's normal reset-link flow (`Admin\UserController::sendResetLink`) —
+  needs a real `MAIL_MAILER` in production to actually deliver. Any user can
+  additionally opt into **TOTP two-factor auth** for their own account from
+  `/profile/two-factor` (self-contained RFC 6238 implementation,
+  `App\Services\TwoFactor\TotpService`, no new dependency) — manual key
+  entry only (no QR image, to avoid sending the secret to a third-party QR
+  service), 8 one-time recovery codes shown once at enable time. Not
+  enforced org-wide, opt-in per account.
 - **Settings** (`Admin\SettingController`, `admin` role only) — single-page
   editor for every `Setting` key, grouped: identity (site name/tagline/
   URL, logo/favicon upload), SEO (meta title suffix, default meta
@@ -481,6 +613,14 @@ php artisan content:import /path/to/genzeetools/checkout
 
 # Seed defaults (admin user + settings) on a fresh DB
 php artisan db:seed
+
+# Flip due scheduled posts to published (also runs every minute via the
+# scheduler once the server cron entry from deploy/README.md is set up)
+php artisan posts:publish-due
+
+# Run the test suite (47 tests as of the 2 Aug 2026 improvements batch —
+# see "Post-launch improvements" above)
+php artisan test
 ```
 
 ## Admin login

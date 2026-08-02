@@ -48,3 +48,31 @@ function something()
 {
     // ..
 }
+
+function actingAsAdmin(): \App\Models\User
+{
+    $admin = \App\Models\User::factory()->create(['role' => 'admin', 'is_active' => true]);
+    test()->actingAs($admin);
+
+    return $admin;
+}
+
+/**
+ * Laravel's normal test HTTP helpers ($this->get() etc.) run every URI
+ * through prepareUrlForRequest(), which trims trailing slashes — so
+ * $this->get('/old-page/') actually requests '/old-page'. That's exactly
+ * wrong for testing this app's trailing-slash legacy routes and the
+ * from_path-based Redirect/410 lookup, both of which are trailing-slash
+ * sensitive by design. This dispatches a request directly through the
+ * kernel, bypassing that normalization, so the exact path is preserved.
+ */
+function getRaw(string $uri): \Illuminate\Testing\TestResponse
+{
+    $symfonyRequest = \Symfony\Component\HttpFoundation\Request::create($uri, 'GET');
+    $request = \Illuminate\Http\Request::createFromBase($symfonyRequest);
+    $kernel = app(\Illuminate\Contracts\Http\Kernel::class);
+    $response = $kernel->handle($request);
+    $kernel->terminate($request, $response);
+
+    return \Illuminate\Testing\TestResponse::fromBaseResponse($response);
+}

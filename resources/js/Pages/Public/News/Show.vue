@@ -1,11 +1,13 @@
 <script setup>
 import SeoHead from '@/Components/Public/SeoHead.vue';
+import ToolTile from '@/Components/Public/ToolTile.vue';
 import PublicLayout from '@/Layouts/PublicLayout.vue';
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const props = defineProps({
     post: { type: Object, required: true },
+    related: { type: Array, default: () => [] },
     canonical: { type: String, required: true },
 });
 
@@ -50,6 +52,20 @@ const jsonLd = computed(() => [
             <h1>{{ post.title }}</h1>
             <p class="article-meta">Published: {{ post.published_at?.slice(0, 10) }}</p>
             <div v-html="post.body" />
+
+            <section v-if="related?.length" class="related-tools">
+                <h2>Related news</h2>
+                <ul class="tool-grid">
+                    <ToolTile
+                        v-for="item in related"
+                        :key="item.slug"
+                        :href="`/news/${item.slug}/`"
+                        icon="📰"
+                        :title="item.title"
+                        :description="item.excerpt"
+                    />
+                </ul>
+            </section>
         </article>
     </PublicLayout>
 </template>

@@ -6,6 +6,7 @@ defineProps({
     stats: { type: Object, required: true },
     recentActivity: { type: Array, required: true },
     recentPosts: { type: Array, required: true },
+    mostViewedPosts: { type: Array, default: () => [] },
 });
 
 const cards = (stats) => [
@@ -35,7 +36,7 @@ const cards = (stats) => [
                     </div>
                 </div>
 
-                <div class="grid gap-6 md:grid-cols-2">
+                <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     <div class="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
                         <h3 class="mb-4 font-semibold text-gray-900 dark:text-gray-100">Recently updated posts</h3>
                         <ul class="divide-y divide-gray-100 dark:divide-gray-700">
@@ -54,6 +55,17 @@ const cards = (stats) => [
                                 <span class="font-medium">{{ log.user?.name ?? 'System' }}</span> {{ log.description }}
                             </li>
                             <li v-if="!recentActivity.length" class="py-2 text-sm text-gray-500">No activity yet.</li>
+                        </ul>
+                    </div>
+
+                    <div class="rounded-lg bg-white p-6 shadow dark:bg-gray-800">
+                        <h3 class="mb-4 font-semibold text-gray-900 dark:text-gray-100">Most viewed posts</h3>
+                        <ul class="divide-y divide-gray-100 dark:divide-gray-700">
+                            <li v-for="post in mostViewedPosts" :key="post.id" class="flex items-center justify-between py-2 text-sm">
+                                <Link :href="route('admin.posts.edit', post.id)" class="text-indigo-600 hover:underline dark:text-indigo-400">{{ post.title }}</Link>
+                                <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs capitalize text-gray-600 dark:bg-gray-700 dark:text-gray-300">{{ post.type }} · {{ post.views }} views</span>
+                            </li>
+                            <li v-if="!mostViewedPosts.length" class="py-2 text-sm text-gray-500">No published posts yet.</li>
                         </ul>
                     </div>
                 </div>
