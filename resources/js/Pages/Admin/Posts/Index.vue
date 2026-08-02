@@ -40,6 +40,12 @@ function bulkAction(action) {
         { preserveScroll: true, onSuccess: () => (selected.value = []) },
     );
 }
+
+function seoBadgeClass(score) {
+    if (score >= 80) return 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200';
+    if (score >= 50) return 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-200';
+    return 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200';
+}
 </script>
 
 <template>
@@ -91,6 +97,8 @@ function bulkAction(action) {
                                 <th class="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">Author</th>
                                 <th class="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">Status</th>
                                 <th class="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">Published</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">SEO</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">Views</th>
                                 <th class="px-4 py-2"></th>
                             </tr>
                         </thead>
@@ -107,13 +115,17 @@ function bulkAction(action) {
                                     <span class="rounded-full px-2 py-0.5 text-xs" :class="post.status === 'published' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-200' : post.status === 'scheduled' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-200' : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'">{{ post.status }}</span>
                                 </td>
                                 <td class="px-4 py-2 text-sm text-gray-500">{{ post.published_at?.slice(0, 10) ?? '—' }}</td>
+                                <td class="px-4 py-2 text-sm">
+                                    <span class="rounded-full px-2 py-0.5 text-xs font-medium" :class="seoBadgeClass(post.seo_score)">{{ post.seo_score }}</span>
+                                </td>
+                                <td class="px-4 py-2 text-sm text-gray-600 dark:text-gray-300">{{ post.views }}</td>
                                 <td class="px-4 py-2 text-right text-sm">
                                     <Link :href="route('admin.posts.edit', post.id)" class="text-indigo-600 hover:underline dark:text-indigo-400">Edit</Link>
                                     <button type="button" class="ml-3 text-red-600 hover:underline dark:text-red-400" @click="destroy(post)">Trash</button>
                                 </td>
                             </tr>
                             <tr v-if="!posts.data.length">
-                                <td colspan="7" class="px-4 py-6 text-center text-sm text-gray-500">No posts found.</td>
+                                <td colspan="9" class="px-4 py-6 text-center text-sm text-gray-500">No posts found.</td>
                             </tr>
                         </tbody>
                     </table>

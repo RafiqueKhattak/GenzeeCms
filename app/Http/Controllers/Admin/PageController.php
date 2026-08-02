@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\Page;
+use App\Models\PageView;
 use App\Support\HtmlSanitizer;
+use App\Support\SeoScorer;
 use App\Http\Controllers\Site\SeoController;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,8 +19,20 @@ class PageController extends Controller
 {
     public function index(): Response
     {
+        $pages = Page::orderBy('title')->get();
+
+        $viewCounts = PageView::whereIn('path', $pages->map(fn (Page $p) => "/{$p->slug}/"))
+            ->selectRaw('path, count(*) as views')
+            ->groupBy('path')
+            ->pluck('views', 'path');
+
+        $pages->each(function (Page $page) use ($viewCounts) {
+            $page->views = (int) ($viewCounts->get("/{$page->slug}/") ?? 0);
+            $page->seo_score = SeoScorer::score($page->meta_title, $page->meta_description, null, $page->body, requireImage: false);
+        });
+
         return Inertia::render('Admin/Pages/Index', [
-            'pages' => Page::orderBy('title')->get(),
+            'pages' => $pages,
         ]);
     }
 

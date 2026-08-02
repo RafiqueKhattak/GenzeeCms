@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
 use App\Support\HtmlSanitizer;
+use App\Support\SeoScorer;
 use App\Http\Controllers\Site\SeoController;
 use App\Http\Controllers\Site\PostController as PublicPostController;
 use Illuminate\Http\RedirectResponse;
@@ -29,6 +30,12 @@ class PostController extends Controller
             ->orderByDesc('updated_at')
             ->paginate(20)
             ->withQueryString();
+
+        $posts->getCollection()->transform(function (Post $post) {
+            $post->seo_score = SeoScorer::score($post->meta_title, $post->meta_description, $post->og_image ?: $post->featured_image, $post->body);
+
+            return $post;
+        });
 
         return Inertia::render('Admin/Posts/Index', [
             'posts' => $posts,

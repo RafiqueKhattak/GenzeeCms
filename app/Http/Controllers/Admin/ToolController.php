@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Tool;
 use App\Models\ToolFaq;
 use App\Support\HtmlSanitizer;
+use App\Support\SeoScorer;
 use App\Http\Controllers\Site\SeoController;
 use App\Http\Controllers\Site\ToolController as PublicToolController;
 use Illuminate\Http\RedirectResponse;
@@ -27,6 +28,12 @@ class ToolController extends Controller
             ->orderBy('order')
             ->paginate(20)
             ->withQueryString();
+
+        $tools->getCollection()->transform(function (Tool $tool) {
+            $tool->seo_score = SeoScorer::score($tool->meta_title, $tool->meta_description, $tool->og_image, $tool->guide_content);
+
+            return $tool;
+        });
 
         return Inertia::render('Admin/Tools/Index', [
             'tools' => $tools,

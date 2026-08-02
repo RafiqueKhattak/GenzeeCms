@@ -39,6 +39,8 @@ class ToolController extends Controller
             ->with(['category', 'faqs', 'related'])
             ->firstOrFail();
 
+        $tool->increment('views');
+
         return Inertia::render('Public/Tools/Show', [
             'tool' => $tool,
             'canonical' => canonical_url("/tools/{$tool->slug}/"),
