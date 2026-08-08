@@ -44,4 +44,13 @@ return [
         'key' => env('NEWS_API_KEY'),
     ],
 
+    /*
+     * Comma-separated IPs (e.g. the site owner's home/office IP) that
+     * RecordPageView skips — so testing the live site doesn't inflate your
+     * own analytics. Compared in-memory only; never written to the database.
+     */
+    'analytics' => [
+        'excluded_ips' => env('ANALYTICS_EXCLUDED_IPS'),
+    ],
+
 ];

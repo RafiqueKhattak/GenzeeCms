@@ -65,6 +65,10 @@ class RecordPageView
             return false;
         }
 
+        if ($this->isExcludedIp($request)) {
+            return false;
+        }
+
         $path = $request->getPathInfo();
 
         if (in_array($path, self::IGNORED_PATHS, true)) {
@@ -134,6 +138,19 @@ class RecordPageView
         }
 
         return substr($host, 0, 255);
+    }
+
+    /**
+     * Compares the request IP against ANALYTICS_EXCLUDED_IPS (comma-separated,
+     * e.g. "203.0.113.5,198.51.100.9" — your own home/office IP) purely
+     * in-memory for this one comparison; the IP itself is never written to
+     * the database, same privacy stance as the rest of this middleware.
+     */
+    protected function isExcludedIp(Request $request): bool
+    {
+        $excluded = array_filter(array_map('trim', explode(',', (string) config('services.analytics.excluded_ips'))));
+
+        return in_array($request->ip(), $excluded, true);
     }
 
     protected function looksLikeBot(Request $request): bool

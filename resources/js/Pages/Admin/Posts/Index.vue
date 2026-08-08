@@ -92,6 +92,7 @@ function seoBadgeClass(score) {
                         <thead class="bg-gray-50 dark:bg-gray-900">
                             <tr>
                                 <th class="w-8 px-4 py-2"><input type="checkbox" :checked="allSelected" @change="toggleAll" /></th>
+                                <th class="w-16 px-4 py-2"></th>
                                 <th class="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">Title</th>
                                 <th class="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">Type</th>
                                 <th class="px-4 py-2 text-left text-xs font-medium uppercase text-gray-500">Author</th>
@@ -105,6 +106,15 @@ function seoBadgeClass(score) {
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
                             <tr v-for="post in posts.data" :key="post.id">
                                 <td class="px-4 py-2"><input type="checkbox" :value="post.id" v-model="selected" /></td>
+                                <td class="px-4 py-2">
+                                    <img
+                                        v-if="post.featured_image"
+                                        :src="post.featured_image"
+                                        :alt="post.title"
+                                        class="h-10 w-14 rounded object-cover"
+                                    />
+                                    <div v-else class="flex h-10 w-14 items-center justify-center rounded bg-gray-100 text-gray-300 dark:bg-gray-700 dark:text-gray-600">—</div>
+                                </td>
                                 <td class="px-4 py-2 text-sm">
                                     <Link :href="route('admin.posts.edit', post.id)" class="font-medium text-indigo-600 hover:underline dark:text-indigo-400">{{ post.title }}</Link>
                                     <div class="text-xs text-gray-400">/{{ post.type }}/{{ post.slug }}/</div>
@@ -125,7 +135,7 @@ function seoBadgeClass(score) {
                                 </td>
                             </tr>
                             <tr v-if="!posts.data.length">
-                                <td colspan="9" class="px-4 py-6 text-center text-sm text-gray-500">No posts found.</td>
+                                <td colspan="10" class="px-4 py-6 text-center text-sm text-gray-500">No posts found.</td>
                             </tr>
                         </tbody>
                     </table>

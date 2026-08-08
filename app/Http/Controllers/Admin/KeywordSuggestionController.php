@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class KeywordSuggestionController extends Controller
 {
@@ -134,5 +135,48 @@ class KeywordSuggestionController extends Controller
         $keyword->delete();
 
         return back()->with('success', 'Suggestion removed.');
+    }
+
+    /**
+     * CSV export (opens directly in Excel/Sheets, no new composer dependency
+     * for a true .xlsx writer) of the current status filter's full list —
+     * not just the current page — so the site owner can review/plan the
+     * whole queue offline before deciding what to turn into posts.
+     */
+    public function export(Request $request): StreamedResponse
+    {
+        $status = $request->input('status', 'new');
+        $status = in_array($status, ['new', 'used', 'dismissed'], true) ? $status : 'new';
+
+        $suggestions = KeywordSuggestion::with('usedPost:id,title')
+            ->where('status', $status)
+            ->orderByDesc('relevance')
+            ->orderByDesc('created_at')
+            ->get();
+
+        $filename = "keyword-ideas-{$status}-".now()->format('Y-m-d').'.csv';
+
+        return response()->streamDownload(function () use ($suggestions) {
+            $out = fopen('php://output', 'w');
+            // BOM so Excel opens the UTF-8 file without mangling non-ASCII keywords.
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['Keyword / Headline', 'Fit score', 'Suggested type', 'Source', 'Source URL', 'Context', 'Status', 'Used in post', 'Fetched at']);
+
+            foreach ($suggestions as $s) {
+                fputcsv($out, [
+                    $s->keyword,
+                    $s->relevance,
+                    $s->suggested_type,
+                    $s->source,
+                    $s->source_url,
+                    $s->context,
+                    $s->status,
+                    $s->usedPost?->title,
+                    optional($s->fetched_at)->format('Y-m-d H:i'),
+                ]);
+            }
+
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 }

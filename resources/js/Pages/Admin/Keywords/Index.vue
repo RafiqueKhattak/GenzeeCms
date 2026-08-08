@@ -60,15 +60,23 @@ function relevanceClass(score) {
         <template #header>
             <div class="flex items-center justify-between">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200">Keyword ideas</h2>
-                <button
-                    type="button"
-                    class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
-                    :disabled="!newsApiConfigured"
-                    :title="newsApiConfigured ? '' : 'Set NEWS_API_KEY in .env to enable'"
-                    @click="fetchNews"
-                >
-                    Fetch latest headlines
-                </button>
+                <div class="flex gap-2">
+                    <a
+                        :href="route('admin.keywords.export', { status: filters.status })"
+                        class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
+                        Export to Excel
+                    </a>
+                    <button
+                        type="button"
+                        class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+                        :disabled="!newsApiConfigured"
+                        :title="newsApiConfigured ? '' : 'Set NEWS_API_KEY in .env to enable'"
+                        @click="fetchNews"
+                    >
+                        Fetch latest headlines
+                    </button>
+                </div>
             </div>
         </template>
 

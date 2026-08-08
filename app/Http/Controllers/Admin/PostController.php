@@ -24,6 +24,7 @@ class PostController extends Controller
     public function index(Request $request): Response
     {
         $posts = Post::query()
+            ->select(['id', 'type', 'category_id', 'author_id', 'slug', 'title', 'featured_image', 'og_image', 'meta_title', 'meta_description', 'body', 'status', 'published_at', 'views', 'updated_at'])
             ->with(['category', 'author:id,name'])
             ->when($request->type, fn ($q, $type) => $q->where('type', $type))
             ->when($request->status, fn ($q, $status) => $q->where('status', $status))

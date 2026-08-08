@@ -48,6 +48,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified', 'admin']
     Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 
     Route::get('keywords', [KeywordSuggestionController::class, 'index'])->name('keywords.index');
+    Route::get('keywords/export', [KeywordSuggestionController::class, 'export'])->name('keywords.export');
     Route::post('keywords', [KeywordSuggestionController::class, 'store'])->name('keywords.store');
     Route::post('keywords/fetch', [KeywordSuggestionController::class, 'fetch'])->name('keywords.fetch');
     Route::put('keywords/{keyword}', [KeywordSuggestionController::class, 'update'])->name('keywords.update');

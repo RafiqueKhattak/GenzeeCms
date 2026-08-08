@@ -25,6 +25,7 @@ const jsonLd = computed(() => [
         datePublished: props.post.published_at,
         dateModified: props.post.updated_at,
         inLanguage: 'en',
+        keywords: props.post.tags?.map((t) => t.name).join(', ') || undefined,
         author: props.post.author
             ? { '@type': 'Person', name: props.post.author.name }
             : { '@type': 'Organization', name: site.value.name, url: site.value.url },
@@ -66,6 +67,10 @@ const jsonLd = computed(() => [
             </div>
             <img v-if="post.featured_image" :src="post.featured_image" :alt="post.title" class="featured-image" />
             <div v-html="post.body" />
+
+            <ul v-if="post.tags?.length" class="tag-list" aria-label="Topics">
+                <li v-for="tag in post.tags" :key="tag.id">{{ tag.name }}</li>
+            </ul>
 
             <p v-if="post.source_name" class="source-citation">
                 Source:
@@ -125,6 +130,24 @@ const jsonLd = computed(() => [
     height: auto;
     border-radius: var(--radius, 12px);
     margin-bottom: var(--s-5, 1.5rem);
+}
+
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    margin: var(--s-5, 1.5rem) 0 0;
+    padding: 0;
+}
+
+.tag-list li {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent-deep, #5b21b6);
+    background: var(--accent-soft, #ede9fe);
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
 }
 
 .source-citation {
