@@ -21,13 +21,23 @@ class TagExistingPosts extends Command
 
     protected $description = "Backfill relevant tags on posts that currently have none";
 
-    /** term => tag label. Matched case-insensitively against title+excerpt. */
+    /**
+     * term => tag label. Matched case-insensitively against title+excerpt
+     * using word-boundary regex — which means inflected forms (plurals,
+     * "-ing", "-s") of a root need their own explicit entry, since \b does
+     * not stem. Where that bit a real post (e.g. "Investing" vs "invest",
+     * "Exchange Rates" vs "exchange rate"), the inflected form is listed
+     * alongside the original rather than replacing it, so no previously
+     * matched post loses a tag on re-run.
+     */
     protected const VOCABULARY = [
         'income tax' => 'Income Tax', 'tax' => 'Tax', 'vat' => 'VAT', 'gst' => 'GST',
         'salary' => 'Salary', 'zakat' => 'Zakat', 'pension' => 'Pension', 'budget' => 'Budget',
         'inflation' => 'Inflation', 'interest rate' => 'Interest Rates', 'loan' => 'Loans',
-        'mortgage' => 'Mortgage', 'debt' => 'Debt', 'savings' => 'Savings', 'invest' => 'Investing',
-        'remittance' => 'Remittances', 'exchange rate' => 'Exchange Rates', 'refund' => 'Tax Refunds',
+        'mortgage' => 'Mortgage', 'debt' => 'Debt', 'savings' => 'Savings', 'saving' => 'Savings',
+        'invest' => 'Investing', 'investing' => 'Investing', 'index fund' => 'Investing',
+        'remittance' => 'Remittances', 'exchange rate' => 'Exchange Rates', 'exchange rates' => 'Exchange Rates',
+        'refund' => 'Tax Refunds',
         'deduction' => 'Tax Deductions', 'fbr' => 'FBR', 'hmrc' => 'HMRC', 'irs' => 'IRS',
         'zatca' => 'ZATCA', 'sbp' => 'State Bank of Pakistan', 'rbi' => 'RBI', 'fed' => 'Federal Reserve',
         'bitcoin' => 'Bitcoin', 'crypto' => 'Crypto', 'ethereum' => 'Ethereum', 'stablecoin' => 'Stablecoins',
@@ -41,6 +51,14 @@ class TagExistingPosts extends Command
         'uk' => 'UK', 'uae' => 'UAE', 'saudi' => 'Saudi Arabia', 'pakistan' => 'Pakistan',
         'india' => 'India', 'canada' => 'Canada', 'us' => 'United States',
         '2026' => '2026',
+        // Added after auditing the posts left untagged by the original list.
+        'compound interest' => 'Compound Interest', 'bmi' => 'BMI', 'body mass index' => 'BMI',
+        'discount' => 'Discounts', 'discounts' => 'Discounts', 'profit margin' => 'Profit Margin',
+        'calorie' => 'Calories', 'calories' => 'Calories', 'tdee' => 'Calories', 'bmr' => 'Calories',
+        'ideal weight' => 'Health', 'pregnancy' => 'Health', 'due date' => 'Health',
+        'password' => 'Online Safety', 'two-factor' => 'Online Safety', 'phishing' => 'Online Safety',
+        'qr code' => 'Technology', 'image optimization' => 'Technology',
+        'csv' => 'Technology', 'json' => 'Technology', 'base64' => 'Technology',
     ];
 
     /** Cap so a post doesn't end up with a wall of tags — 3-6 stays useful. */
