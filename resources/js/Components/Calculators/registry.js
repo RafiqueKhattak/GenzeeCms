@@ -61,4 +61,10 @@ export const calculatorRegistry = {
     FreelancerHourlyRateCalculator: () => import('./FreelancerHourlyRateCalculator.vue'),
     InflationImpactCalculator: () => import('./InflationImpactCalculator.vue'),
     OvertimePayCalculator: () => import('./OvertimePayCalculator.vue'),
+    CreditCardMinimumPaymentCalculator: () => import('./CreditCardMinimumPaymentCalculator.vue'),
+    CapitalGainsTaxCalculator: () => import('./CapitalGainsTaxCalculator.vue'),
+    LoanToValueCalculator: () => import('./LoanToValueCalculator.vue'),
+    BreakEvenPointCalculator: () => import('./BreakEvenPointCalculator.vue'),
+    EffectiveAnnualRateCalculator: () => import('./EffectiveAnnualRateCalculator.vue'),
+    DigitalStorageConverter: () => import('./DigitalStorageConverter.vue'),
 };

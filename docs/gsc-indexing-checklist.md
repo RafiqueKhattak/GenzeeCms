@@ -247,3 +247,12 @@ wasted on quota errors.
 - [ ] https://genzeelogics.com/news/pakistan-inflation-eases-9-2-percent-july-2026/
 - [ ] https://genzeelogics.com/news/canada-tfsa-limit-unchanged-7000-2026/
 
+## Day 22 — new tools (Aug 2026 growth batch 3)
+
+- [ ] https://genzeelogics.com/tools/credit-card-minimum-payment-calculator/
+- [ ] https://genzeelogics.com/tools/capital-gains-tax-calculator/
+- [ ] https://genzeelogics.com/tools/loan-to-value-calculator/
+- [ ] https://genzeelogics.com/tools/break-even-point-calculator/
+- [ ] https://genzeelogics.com/tools/effective-annual-rate-calculator/
+- [ ] https://genzeelogics.com/tools/digital-storage-converter/
+
