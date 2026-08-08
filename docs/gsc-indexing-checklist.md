@@ -193,3 +193,12 @@ wasted on quota errors.
 
 - [ ] https://genzeelogics.com/news/zatca-penalty-exemption-extended-2026/
 
+## Day 16 — new tools (Aug 2026 growth batch 1)
+
+- [ ] https://genzeelogics.com/tools/retirement-savings-calculator/
+- [ ] https://genzeelogics.com/tools/debt-payoff-calculator/
+- [ ] https://genzeelogics.com/tools/fire-number-calculator/
+- [ ] https://genzeelogics.com/tools/net-worth-calculator/
+- [ ] https://genzeelogics.com/tools/budget-calculator/
+- [ ] https://genzeelogics.com/tools/rental-yield-calculator/
+

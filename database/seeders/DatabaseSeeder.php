@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             GenZContentSeeder::class,
             NewsDepartmentSeeder::class,
             AuthorsSeeder::class,
+            NewToolsBatch1Seeder::class,
         ]);
     }
 }

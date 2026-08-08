@@ -49,4 +49,10 @@ export const calculatorRegistry = {
     ImageFormatConverter: () => import('./ImageFormatConverter.vue'),
     ImageToPdf: () => import('./ImageToPdf.vue'),
     InvoiceGenerator: () => import('./InvoiceGenerator.vue'),
+    RetirementSavingsCalculator: () => import('./RetirementSavingsCalculator.vue'),
+    DebtPayoffCalculator: () => import('./DebtPayoffCalculator.vue'),
+    FireNumberCalculator: () => import('./FireNumberCalculator.vue'),
+    NetWorthCalculator: () => import('./NetWorthCalculator.vue'),
+    BudgetCalculator: () => import('./BudgetCalculator.vue'),
+    RentalYieldCalculator: () => import('./RentalYieldCalculator.vue'),
 };
