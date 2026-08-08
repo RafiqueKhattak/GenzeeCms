@@ -72,4 +72,10 @@ export const calculatorRegistry = {
     CurrencyDepreciationImpactCalculator: () => import('./CurrencyDepreciationImpactCalculator.vue'),
     GratuityCalculator: () => import('./GratuityCalculator.vue'),
     ImportDutyCalculator: () => import('./ImportDutyCalculator.vue'),
+    RuleOf72Calculator: () => import('./RuleOf72Calculator.vue'),
+    DebtToIncomeRatioCalculator: () => import('./DebtToIncomeRatioCalculator.vue'),
+    SalaryIncrementCalculator: () => import('./SalaryIncrementCalculator.vue'),
+    ZakatAlFitrCalculator: () => import('./ZakatAlFitrCalculator.vue'),
+    RentVsBuyCalculator: () => import('./RentVsBuyCalculator.vue'),
+    BillSplitterCalculator: () => import('./BillSplitterCalculator.vue'),
 };

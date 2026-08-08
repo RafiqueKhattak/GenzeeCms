@@ -301,3 +301,12 @@ wasted on quota errors.
 - [ ] https://genzeelogics.com/news/us-credit-card-debt-near-record-1-25-trillion/
 - [ ] https://genzeelogics.com/news/china-gdp-growth-slows-4-7-percent-h1-2026/
 
+## Day 28 — new tools (Aug 2026 growth batch 5, final)
+
+- [ ] https://genzeelogics.com/tools/rule-of-72-calculator/
+- [ ] https://genzeelogics.com/tools/debt-to-income-ratio-calculator/
+- [ ] https://genzeelogics.com/tools/salary-increment-calculator/
+- [ ] https://genzeelogics.com/tools/zakat-al-fitr-calculator/
+- [ ] https://genzeelogics.com/tools/rent-vs-buy-calculator/
+- [ ] https://genzeelogics.com/tools/bill-splitter-calculator/
+
