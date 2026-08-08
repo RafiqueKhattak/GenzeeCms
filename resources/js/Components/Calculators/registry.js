@@ -55,4 +55,10 @@ export const calculatorRegistry = {
     NetWorthCalculator: () => import('./NetWorthCalculator.vue'),
     BudgetCalculator: () => import('./BudgetCalculator.vue'),
     RentalYieldCalculator: () => import('./RentalYieldCalculator.vue'),
+    AmortizationScheduleCalculator: () => import('./AmortizationScheduleCalculator.vue'),
+    MarkupCalculator: () => import('./MarkupCalculator.vue'),
+    EmergencyFundCalculator: () => import('./EmergencyFundCalculator.vue'),
+    FreelancerHourlyRateCalculator: () => import('./FreelancerHourlyRateCalculator.vue'),
+    InflationImpactCalculator: () => import('./InflationImpactCalculator.vue'),
+    OvertimePayCalculator: () => import('./OvertimePayCalculator.vue'),
 };

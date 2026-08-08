@@ -220,3 +220,12 @@ wasted on quota errors.
 - [ ] https://genzeelogics.com/news/india-gst-collections-rise-15-percent-july-2026/
 - [ ] https://genzeelogics.com/news/sec-approves-faster-listing-standards-crypto-etps/
 
+## Day 19 — new tools (Aug 2026 growth batch 2)
+
+- [ ] https://genzeelogics.com/tools/amortization-schedule-calculator/
+- [ ] https://genzeelogics.com/tools/markup-calculator/
+- [ ] https://genzeelogics.com/tools/emergency-fund-calculator/
+- [ ] https://genzeelogics.com/tools/freelancer-hourly-rate-calculator/
+- [ ] https://genzeelogics.com/tools/inflation-impact-calculator/
+- [ ] https://genzeelogics.com/tools/overtime-pay-calculator/
+
