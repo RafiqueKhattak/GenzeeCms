@@ -310,3 +310,12 @@ wasted on quota errors.
 - [ ] https://genzeelogics.com/tools/rent-vs-buy-calculator/
 - [ ] https://genzeelogics.com/tools/bill-splitter-calculator/
 
+## Day 29 — new blog posts (Aug 2026 growth batch 5, final)
+
+- [ ] https://genzeelogics.com/blog/rule-of-72-quickest-way-estimate-doubling/
+- [ ] https://genzeelogics.com/blog/what-is-good-debt-to-income-ratio/
+- [ ] https://genzeelogics.com/blog/how-to-calculate-negotiate-salary-raise/
+- [ ] https://genzeelogics.com/blog/zakat-al-fitr-vs-zakat-al-mal-difference/
+- [ ] https://genzeelogics.com/blog/rent-or-buy-how-to-run-the-numbers/
+- [ ] https://genzeelogics.com/blog/fairest-way-split-group-bill-different-amounts/
+
