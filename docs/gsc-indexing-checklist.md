@@ -274,3 +274,12 @@ wasted on quota errors.
 - [ ] https://genzeelogics.com/news/ethereum-etf-inflows-outpace-bitcoin-july-2026/
 - [ ] https://genzeelogics.com/news/uk-national-insurance-thresholds-frozen-2030/
 
+## Day 25 — new tools (Aug 2026 growth batch 4)
+
+- [ ] https://genzeelogics.com/tools/usd-to-pkr-exchange-rate/
+- [ ] https://genzeelogics.com/tools/mortgage-affordability-calculator/
+- [ ] https://genzeelogics.com/tools/loan-comparison-calculator/
+- [ ] https://genzeelogics.com/tools/currency-depreciation-impact-calculator/
+- [ ] https://genzeelogics.com/tools/gratuity-calculator/
+- [ ] https://genzeelogics.com/tools/import-duty-calculator/
+

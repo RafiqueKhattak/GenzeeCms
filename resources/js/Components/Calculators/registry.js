@@ -67,4 +67,9 @@ export const calculatorRegistry = {
     BreakEvenPointCalculator: () => import('./BreakEvenPointCalculator.vue'),
     EffectiveAnnualRateCalculator: () => import('./EffectiveAnnualRateCalculator.vue'),
     DigitalStorageConverter: () => import('./DigitalStorageConverter.vue'),
+    MortgageAffordabilityCalculator: () => import('./MortgageAffordabilityCalculator.vue'),
+    LoanComparisonCalculator: () => import('./LoanComparisonCalculator.vue'),
+    CurrencyDepreciationImpactCalculator: () => import('./CurrencyDepreciationImpactCalculator.vue'),
+    GratuityCalculator: () => import('./GratuityCalculator.vue'),
+    ImportDutyCalculator: () => import('./ImportDutyCalculator.vue'),
 };
