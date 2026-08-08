@@ -238,3 +238,12 @@ wasted on quota errors.
 - [ ] https://genzeelogics.com/blog/what-inflation-does-to-uninvested-money/
 - [ ] https://genzeelogics.com/blog/time-and-a-half-overtime-explained/
 
+## Day 21 — new news (Aug 2026 growth batch 2)
+
+- [ ] https://genzeelogics.com/news/23-billion-student-loan-settlement-450000-borrowers/
+- [ ] https://genzeelogics.com/news/us-july-2026-jobs-report-unemployment-falls-payrolls-shrink/
+- [ ] https://genzeelogics.com/news/uk-cash-isa-allowance-cut-2027/
+- [ ] https://genzeelogics.com/news/gold-price-near-record-high-august-2026/
+- [ ] https://genzeelogics.com/news/pakistan-inflation-eases-9-2-percent-july-2026/
+- [ ] https://genzeelogics.com/news/canada-tfsa-limit-unchanged-7000-2026/
+
