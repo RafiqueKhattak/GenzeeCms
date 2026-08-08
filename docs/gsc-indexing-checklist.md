@@ -256,3 +256,12 @@ wasted on quota errors.
 - [ ] https://genzeelogics.com/tools/effective-annual-rate-calculator/
 - [ ] https://genzeelogics.com/tools/digital-storage-converter/
 
+## Day 23 — new blog posts (Aug 2026 growth batch 3)
+
+- [ ] https://genzeelogics.com/blog/credit-card-minimum-payment-trap-real-numbers/
+- [ ] https://genzeelogics.com/blog/capital-gains-tax-101-short-vs-long-term/
+- [ ] https://genzeelogics.com/blog/what-is-loan-to-value-ltv-mortgage-rate/
+- [ ] https://genzeelogics.com/blog/how-to-find-break-even-point-business/
+- [ ] https://genzeelogics.com/blog/nominal-vs-effective-interest-rate/
+- [ ] https://genzeelogics.com/blog/gb-vs-gib-storage-explained/
+

@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             NewBlogPostsBatch2Seeder::class,
             NewNewsBatch2Seeder::class,
             NewToolsBatch3Seeder::class,
+            NewBlogPostsBatch3Seeder::class,
         ]);
     }
 }
