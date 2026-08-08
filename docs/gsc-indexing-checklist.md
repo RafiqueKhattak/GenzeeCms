@@ -283,3 +283,12 @@ wasted on quota errors.
 - [ ] https://genzeelogics.com/tools/gratuity-calculator/
 - [ ] https://genzeelogics.com/tools/import-duty-calculator/
 
+## Day 26 — new blog posts (Aug 2026 growth batch 4)
+
+- [ ] https://genzeelogics.com/blog/what-moves-usd-to-pkr-exchange-rate/
+- [ ] https://genzeelogics.com/blog/what-does-state-bank-of-pakistan-actually-do/
+- [ ] https://genzeelogics.com/blog/interest-rates-inflation-pakistan-monetary-policy/
+- [ ] https://genzeelogics.com/blog/what-weaker-rupee-actually-costs-you/
+- [ ] https://genzeelogics.com/blog/how-much-house-can-you-actually-afford/
+- [ ] https://genzeelogics.com/blog/understanding-gratuity-what-youre-owed/
+
