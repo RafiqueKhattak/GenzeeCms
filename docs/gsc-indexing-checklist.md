@@ -319,3 +319,12 @@ wasted on quota errors.
 - [ ] https://genzeelogics.com/blog/rent-or-buy-how-to-run-the-numbers/
 - [ ] https://genzeelogics.com/blog/fairest-way-split-group-bill-different-amounts/
 
+## Day 30 — new news (Aug 2026 growth batch 5, final)
+
+- [ ] https://genzeelogics.com/news/imf-completes-pakistan-third-review-eff/
+- [ ] https://genzeelogics.com/news/uk-state-pension-triple-lock-tax-threshold-2027/
+- [ ] https://genzeelogics.com/news/us-mortgage-rates-rise-6-69-percent-fifth-week/
+- [ ] https://genzeelogics.com/news/tether-usdt-market-cap-falls-5-billion/
+- [ ] https://genzeelogics.com/news/rbi-raises-gdp-forecast-holds-rate-5-25/
+- [ ] https://genzeelogics.com/news/canada-inflation-eases-2-8-percent-june-2026/
+
