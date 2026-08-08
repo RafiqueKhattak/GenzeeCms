@@ -229,3 +229,12 @@ wasted on quota errors.
 - [ ] https://genzeelogics.com/tools/inflation-impact-calculator/
 - [ ] https://genzeelogics.com/tools/overtime-pay-calculator/
 
+## Day 20 — new blog posts (Aug 2026 growth batch 2)
+
+- [ ] https://genzeelogics.com/blog/how-loan-amortization-actually-works/
+- [ ] https://genzeelogics.com/blog/markup-vs-margin-pricing-mistake/
+- [ ] https://genzeelogics.com/blog/how-big-should-emergency-fund-be/
+- [ ] https://genzeelogics.com/blog/how-to-price-freelance-rate-properly/
+- [ ] https://genzeelogics.com/blog/what-inflation-does-to-uninvested-money/
+- [ ] https://genzeelogics.com/blog/time-and-a-half-overtime-explained/
+
