@@ -202,3 +202,21 @@ wasted on quota errors.
 - [ ] https://genzeelogics.com/tools/budget-calculator/
 - [ ] https://genzeelogics.com/tools/rental-yield-calculator/
 
+## Day 17 — new blog posts (Aug 2026 growth batch 1)
+
+- [ ] https://genzeelogics.com/blog/gen-z-side-hustle-boom/
+- [ ] https://genzeelogics.com/blog/debt-snowball-vs-avalanche/
+- [ ] https://genzeelogics.com/blog/what-is-your-fire-number/
+- [ ] https://genzeelogics.com/blog/how-to-calculate-net-worth/
+- [ ] https://genzeelogics.com/blog/50-30-20-budget-rule-explained/
+- [ ] https://genzeelogics.com/blog/rental-property-investing-101/
+
+## Day 18 — new news (Aug 2026 growth batch 1)
+
+- [ ] https://genzeelogics.com/news/fbr-july-2026-collection-beats-target/
+- [ ] https://genzeelogics.com/news/uae-extends-small-business-tax-relief-2029/
+- [ ] https://genzeelogics.com/news/bank-of-canada-holds-rate-2-25-percent-sixth-time/
+- [ ] https://genzeelogics.com/news/uk-removes-vat-household-electricity-october-2026/
+- [ ] https://genzeelogics.com/news/india-gst-collections-rise-15-percent-july-2026/
+- [ ] https://genzeelogics.com/news/sec-approves-faster-listing-standards-crypto-etps/
+
