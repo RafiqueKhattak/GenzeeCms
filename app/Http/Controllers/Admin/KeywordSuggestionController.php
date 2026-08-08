@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\KeywordSuggestion;
+use App\Services\Keywords\BbcRssClient;
 use App\Services\Keywords\KeywordRelevance;
 use App\Services\Keywords\NewsApiClient;
 use Illuminate\Http\RedirectResponse;
@@ -19,7 +20,7 @@ class KeywordSuggestionController extends Controller
     /** Below this relevance score a fetched headline isn't worth storing. */
     protected const MIN_RELEVANCE_TO_STORE = 15;
 
-    public function index(Request $request, NewsApiClient $newsApi): Response
+    public function index(Request $request, NewsApiClient $newsApi, BbcRssClient $bbcRss): Response
     {
         $status = $request->input('status', 'new');
         $status = in_array($status, ['new', 'used', 'dismissed'], true) ? $status : 'new';
@@ -38,7 +39,8 @@ class KeywordSuggestionController extends Controller
                 'dismissed' => KeywordSuggestion::where('status', 'dismissed')->count(),
             ],
             'newsApiConfigured' => $newsApi->isConfigured(),
-            'lastFetchedAt' => KeywordSuggestion::where('source', 'news-api')->max('fetched_at'),
+            'bbcRssConfigured' => $bbcRss->isConfigured(),
+            'lastFetchedAt' => KeywordSuggestion::whereIn('source', ['news-api', 'bbc-rss'])->max('fetched_at'),
         ]);
     }
 
@@ -65,23 +67,48 @@ class KeywordSuggestionController extends Controller
     }
 
     /**
-     * Pulls fresh headlines and keeps only those that score as relevant to
-     * this site's subject area — trending feeds are mostly sport, celebrity
-     * and breaking local news, none of which belongs here.
+     * Pulls fresh headlines from every configured source and keeps only
+     * those that score as relevant to this site's subject area — trending
+     * feeds are mostly sport, celebrity and breaking local news, none of
+     * which belongs here.
      */
-    public function fetch(NewsApiClient $newsApi, KeywordRelevance $relevance): RedirectResponse
+    public function fetch(NewsApiClient $newsApi, BbcRssClient $bbcRss, KeywordRelevance $relevance): RedirectResponse
     {
-        if (! $newsApi->isConfigured()) {
+        $sources = [];
+        if ($newsApi->isConfigured()) {
+            $sources['news-api'] = $newsApi->recentHeadlines();
+        }
+        if ($bbcRss->isConfigured()) {
+            $sources['bbc-rss'] = $bbcRss->recentHeadlines();
+        }
+
+        if (empty($sources)) {
             return back()->with('error', 'No NEWS_API_KEY is configured — add a free key from newsapi.org to your .env, or add keywords manually.');
         }
 
-        $headlines = $newsApi->recentHeadlines();
+        $totalFetched = 0;
+        $totalStored = 0;
 
-        if (empty($headlines)) {
-            return back()->with('error', 'The news API returned nothing. Check the key and try again shortly.');
+        foreach ($sources as $source => $headlines) {
+            $totalFetched += count($headlines);
+            $totalStored += $this->storeHeadlines($headlines, $source, $relevance);
         }
 
+        if ($totalFetched === 0) {
+            return back()->with('error', 'The news sources returned nothing. Try again shortly.');
+        }
+
+        $skipped = $totalFetched - $totalStored;
+        ActivityLog::record('updated', "Fetched keyword suggestions: {$totalStored} relevant, {$skipped} off-topic skipped");
+
+        return back()->with('success', "Fetched {$totalStored} relevant suggestions ({$skipped} off-topic headlines skipped).");
+    }
+
+    /** @param array<int, array{title: string, description: ?string, url: string, source: ?string}> $headlines */
+    protected function storeHeadlines(array $headlines, string $source, KeywordRelevance $relevance): int
+    {
         $stored = 0;
+
         foreach ($headlines as $headline) {
             $text = $headline['title'].' '.($headline['description'] ?? '');
             $score = $relevance->score($text);
@@ -91,7 +118,7 @@ class KeywordSuggestionController extends Controller
             }
 
             $existing = KeywordSuggestion::where('keyword', $headline['title'])
-                ->where('source', 'news-api')
+                ->where('source', $source)
                 ->first();
 
             // Don't resurrect something already handled or explicitly dismissed.
@@ -100,7 +127,7 @@ class KeywordSuggestionController extends Controller
             }
 
             KeywordSuggestion::updateOrCreate(
-                ['keyword' => $headline['title'], 'source' => 'news-api'],
+                ['keyword' => $headline['title'], 'source' => $source],
                 [
                     'source_url' => $headline['url'],
                     'context' => $headline['description'],
@@ -113,10 +140,7 @@ class KeywordSuggestionController extends Controller
             $stored++;
         }
 
-        $skipped = count($headlines) - $stored;
-        ActivityLog::record('updated', "Fetched keyword suggestions: {$stored} relevant, {$skipped} off-topic skipped");
-
-        return back()->with('success', "Fetched {$stored} relevant suggestions ({$skipped} off-topic headlines skipped).");
+        return $stored;
     }
 
     public function update(Request $request, KeywordSuggestion $keyword): RedirectResponse

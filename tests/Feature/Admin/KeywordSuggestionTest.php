@@ -3,6 +3,7 @@
 use App\Models\KeywordSuggestion;
 use App\Models\Post;
 use App\Services\Keywords\KeywordRelevance;
+use Illuminate\Support\Facades\Http;
 
 test('niche keywords score higher than off-topic trending terms', function () {
     $relevance = new KeywordRelevance;
@@ -91,13 +92,44 @@ test('creating a post from a suggestion prefills the title and marks it used', f
         ->and($suggestion->fresh()->used_post_id)->toBe($post->id);
 });
 
-test('fetching without an API key fails gracefully instead of erroring', function () {
+test('fetching without an API key and an empty BBC feed fails gracefully instead of erroring', function () {
     actingAsAdmin();
     config(['services.news_api.key' => null]);
+    Http::fake(['feeds.bbci.co.uk/*' => Http::response('', 200)]);
 
     $this->post(route('admin.keywords.fetch'))
         ->assertRedirect()
         ->assertSessionHas('error');
 
     expect(KeywordSuggestion::count())->toBe(0);
+});
+
+test('fetching pulls relevant headlines from the BBC RSS feeds even without a NewsAPI key', function () {
+    actingAsAdmin();
+    config(['services.news_api.key' => null]);
+
+    $rss = <<<'XML'
+    <?xml version="1.0" encoding="UTF-8"?>
+    <rss version="2.0"><channel>
+        <item>
+            <title>State Bank raises interest rates to fight inflation</title>
+            <description>The central bank's move affects borrowing costs nationwide.</description>
+            <link>https://www.bbc.co.uk/news/articles/example1</link>
+        </item>
+        <item>
+            <title>Match report: local football derby ends in draw</title>
+            <description>Neither side could find the net in a goalless first half.</description>
+            <link>https://www.bbc.co.uk/news/articles/example2</link>
+        </item>
+    </channel></rss>
+    XML;
+
+    Http::fake(['feeds.bbci.co.uk/*' => Http::response($rss, 200)]);
+
+    $this->post(route('admin.keywords.fetch'))
+        ->assertRedirect()
+        ->assertSessionHas('success');
+
+    expect(KeywordSuggestion::where('source', 'bbc-rss')->where('keyword', 'like', '%interest rates%')->exists())->toBeTrue()
+        ->and(KeywordSuggestion::where('source', 'bbc-rss')->where('keyword', 'like', '%football derby%')->exists())->toBeFalse();
 });

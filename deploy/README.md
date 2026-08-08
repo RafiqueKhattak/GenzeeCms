@@ -133,11 +133,18 @@ regardless. To populate it, either:
 
 ## Optional: keyword suggestions from the news API
 
-`/admin/keywords` can pull headlines automatically if `NEWS_API_KEY` is set
-in `.env`. Get a free key from <https://newsapi.org> — it is an API key
+`/admin/keywords` always fetches BBC News's official Business and Technology
+RSS feeds (`feeds.bbci.co.uk`) — no key needed, nothing to configure. An
+earlier candidate, the unofficial `bbc-news-api.vercel.app` wrapper, was
+evaluated and rejected: its Business and Technology sections both returned
+the same generic top-of-homepage stories rather than topic-scoped content,
+which would have fed mislabeled text into the relevance filter.
+
+It can also pull from NewsAPI.org if `NEWS_API_KEY` is set in `.env`, for
+extra coverage. Get a free key from <https://newsapi.org> — it is an API key
 issued at signup, not an account login, and nothing else is shared with it.
-Without a key the page still works; you just add keywords manually (for
-example from Google Trends) instead of fetching them.
+Without a key the page still fetches BBC headlines; you can also always add
+keywords manually (for example from Google Trends).
 
 ```env
 NEWS_API_KEY=your-free-key-here

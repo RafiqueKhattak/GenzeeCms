@@ -8,6 +8,7 @@ const props = defineProps({
     suggestions: { type: Object, required: true },
     counts: { type: Object, required: true },
     newsApiConfigured: { type: Boolean, required: true },
+    bbcRssConfigured: { type: Boolean, required: true },
     lastFetchedAt: { type: String, default: null },
 });
 
@@ -70,8 +71,8 @@ function relevanceClass(score) {
                     <button
                         type="button"
                         class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
-                        :disabled="!newsApiConfigured"
-                        :title="newsApiConfigured ? '' : 'Set NEWS_API_KEY in .env to enable'"
+                        :disabled="!newsApiConfigured && !bbcRssConfigured"
+                        :title="newsApiConfigured || bbcRssConfigured ? '' : 'Set NEWS_API_KEY in .env to enable'"
                         @click="fetchNews"
                     >
                         Fetch latest headlines
@@ -83,9 +84,10 @@ function relevanceClass(score) {
         <div class="py-8">
             <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
                 <div v-if="!newsApiConfigured" class="rounded-md bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
-                    <strong>Automatic fetching is off.</strong> Add a free API key from
+                    <strong>NewsAPI fetching is off.</strong> Add a free API key from
                     <span class="font-mono">newsapi.org</span> as <span class="font-mono">NEWS_API_KEY</span> in your
-                    <span class="font-mono">.env</span> to pull headlines automatically. You can still add keywords
+                    <span class="font-mono">.env</span> for extra coverage. BBC News's official Business and
+                    Technology RSS feeds are fetched automatically either way, and you can always add keywords
                     manually below — for example from Google Trends.
                 </div>
 
@@ -160,7 +162,7 @@ function relevanceClass(score) {
                             </tr>
                             <tr v-if="!suggestions.data.length">
                                 <td colspan="5" class="px-4 py-8 text-center text-sm text-gray-500">
-                                    Nothing here yet. Add a keyword above{{ newsApiConfigured ? ' or fetch the latest headlines' : '' }}.
+                                    Nothing here yet. Add a keyword above or fetch the latest headlines.
                                 </td>
                             </tr>
                         </tbody>
