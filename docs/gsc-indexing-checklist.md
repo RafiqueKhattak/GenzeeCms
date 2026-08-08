@@ -292,3 +292,12 @@ wasted on quota errors.
 - [ ] https://genzeelogics.com/blog/how-much-house-can-you-actually-afford/
 - [ ] https://genzeelogics.com/blog/understanding-gratuity-what-youre-owed/
 
+## Day 27 — new news (Aug 2026 growth batch 4)
+
+- [ ] https://genzeelogics.com/news/sbp-forex-reserves-rise-17-billion-governor/
+- [ ] https://genzeelogics.com/news/pakistani-rupee-holds-steady-279-dollar/
+- [ ] https://genzeelogics.com/news/social-security-2027-cola-estimate/
+- [ ] https://genzeelogics.com/news/harvard-report-rental-affordability-crisis-deepens-2026/
+- [ ] https://genzeelogics.com/news/us-credit-card-debt-near-record-1-25-trillion/
+- [ ] https://genzeelogics.com/news/china-gdp-growth-slows-4-7-percent-h1-2026/
+
