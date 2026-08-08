@@ -265,3 +265,12 @@ wasted on quota errors.
 - [ ] https://genzeelogics.com/blog/nominal-vs-effective-interest-rate/
 - [ ] https://genzeelogics.com/blog/gb-vs-gib-storage-explained/
 
+## Day 24 — new news (Aug 2026 growth batch 3)
+
+- [ ] https://genzeelogics.com/news/australia-payday-super-employers-2026/
+- [ ] https://genzeelogics.com/news/ecb-raises-rates-first-hike-three-years/
+- [ ] https://genzeelogics.com/news/us-401k-contribution-limit-2026-24500/
+- [ ] https://genzeelogics.com/news/bank-of-japan-holds-rate-1-percent-inflation-warning/
+- [ ] https://genzeelogics.com/news/ethereum-etf-inflows-outpace-bitcoin-july-2026/
+- [ ] https://genzeelogics.com/news/uk-national-insurance-thresholds-frozen-2030/
+
